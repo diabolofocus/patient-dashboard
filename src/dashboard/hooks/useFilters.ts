@@ -1,0 +1,131 @@
+
+// ==============================================
+// FIXED: 4. src/dashboard/pages/hooks/useFilters.ts
+// ==============================================
+
+import { useState, useMemo } from 'react';
+import { PatientSubmission, FilterState } from '../types';
+import { determineAgeGroup } from '../utils/helpers';
+
+const TIME_SLOT_MAPPING: Record<string, string> = {
+    '8': '8-9',
+    '9': '9-10',
+    '10': '10-11',
+    '11': '11-12',
+    '12': '12-13',
+    '13': '13-14',
+    '14': '14-15',
+    '15': '15-16',
+    '16': '16-17',
+    '17': '17-18',
+    '18': '18-19'
+};
+
+const DAY_FIELD_MAPPING: Record<string, string> = {
+    'monday': 'montag',
+    'tuesday': 'dienstag',
+    'wednesday': 'mittwoch',
+    'thursday': 'donnerstag',
+    'friday': 'freitag'
+};
+
+export const useFilters = (allSubmissions: PatientSubmission[]) => {
+    const [filters, setFilters] = useState<FilterState>({
+        selectedDay: null,
+        selectedTimeSlots: [],
+        selectedHomeVisit: [],
+        selectedAgeGroups: [],
+        searchTerm: '',
+    });
+
+    const filteredSubmissions = useMemo(() => {
+        let filtered = allSubmissions;
+
+        // Search filter
+        if (filters.searchTerm) {
+            const searchTerm = filters.searchTerm.toLowerCase().trim();
+            filtered = filtered.filter(item => {
+                const fieldsToSearch = [
+                    item.submissions.name_1,
+                    item.submissions.vorname,
+                ];
+                return fieldsToSearch.some(field => field?.toLowerCase().includes(searchTerm));
+            });
+        }
+
+        // Day filter
+        if (filters.selectedDay) {
+            const germanDay = DAY_FIELD_MAPPING[filters.selectedDay.toLowerCase()];
+            filtered = filtered.filter(item =>
+                item.submissions[germanDay as keyof typeof item.submissions] &&
+                (item.submissions[germanDay as keyof typeof item.submissions] as string[])?.length > 0
+            );
+        }
+
+        // Time slots filter
+        if (filters.selectedTimeSlots.length > 0) {
+            filtered = filtered.filter(item => {
+                if (!filters.selectedDay) {
+                    return Object.values(DAY_FIELD_MAPPING).some(germanDay => {
+                        const dayAvailability = item.submissions[germanDay as keyof typeof item.submissions] as string[] || [];
+                        return filters.selectedTimeSlots.every(slot => {
+                            const timeRange = TIME_SLOT_MAPPING[slot];
+                            return dayAvailability.includes(timeRange);
+                        });
+                    });
+                } else {
+                    const germanDay = DAY_FIELD_MAPPING[filters.selectedDay.toLowerCase()];
+                    const dayAvailability = item.submissions[germanDay as keyof typeof item.submissions] as string[] || [];
+                    return filters.selectedTimeSlots.every(slot => {
+                        const timeRange = TIME_SLOT_MAPPING[slot];
+                        return dayAvailability.includes(timeRange);
+                    });
+                }
+            });
+        }
+
+        // Home visit filter
+        if (filters.selectedHomeVisit.length > 0) {
+            filtered = filtered.filter(item => {
+                const homeVisitAnswer = item.submissions.wurde_ein_hausbesuch_verordnet;
+                if (!homeVisitAnswer) return false;
+
+                return filters.selectedHomeVisit.some(selected =>
+                    homeVisitAnswer.toLowerCase() === selected.toLowerCase()
+                );
+            });
+        }
+
+        // Age groups filter
+        if (filters.selectedAgeGroups.length > 0) {
+            filtered = filtered.filter(item => {
+                const birthDate = item.submissions.geburtsdatum;
+                const ageGroup = determineAgeGroup(birthDate);
+                return ageGroup && filters.selectedAgeGroups.includes(ageGroup);
+            });
+        }
+
+        return filtered;
+    }, [allSubmissions, filters]);
+
+    const updateFilter = (key: keyof FilterState, value: any) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            selectedDay: null,
+            selectedTimeSlots: [],
+            selectedHomeVisit: [],
+            selectedAgeGroups: [],
+            searchTerm: '',
+        });
+    };
+
+    return {
+        filters,
+        filteredSubmissions,
+        updateFilter,
+        clearFilters,
+    };
+};
