@@ -182,10 +182,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             width: '8%',
             render: (patient: PatientSubmission) => (
                 <Badge
-                    skin={patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'standard'}
+                    skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'standard'}
                     size="small"
                 >
-                    {patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neu' : 'Alt'}
+                    {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neu' : 'WV'}
                 </Badge>
             ),
         },
@@ -204,7 +204,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         skin={age <= 18 ? 'standard' : 'premium'}
                         size="small"
                     >
-                        {age <= 18 ? 'K' : 'E'}
+                        {age <= 18 ? 'Kinder' : 'Erwachsene'}
                     </Badge>
                 );
             },
@@ -258,7 +258,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                 style={{
                     height: 'calc(100vh - 300px)',
                     maxHeight: 'calc(100vh - 300px)',
-                    overflowY: 'auto',
+                    overflowY: 'visible',
                     border: '1px solid #e0e0e0',
                     borderRadius: '8px',
                     display: 'flex',
@@ -276,7 +276,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         background-color: transparent !important;
                     }
                 `}</style>
-                <Box style={{ height: '100%', overflow: 'visible' }}>
+                <Box>
                     <Table
                         data={currentPatients}
                         columns={columns}
@@ -314,7 +314,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                     </TableToolbar.Item>
                                 </TableToolbar.ItemGroup>
                             </TableToolbar>
-                            <Box style={{ flex: 1, overflow: 'auto' }}>
+                            <Box style={{ flex: 1, overflow: 'visible' }}>
                                 <Table.Content />
                             </Box>
                         </Card>

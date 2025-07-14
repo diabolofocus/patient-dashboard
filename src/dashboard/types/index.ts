@@ -11,7 +11,7 @@ export interface PatientSubmission {
         geburtsdatum?: string;
         geschlecht?: string;
         date_5bd8?: string;
-        wurden_sie_schon_einmal_bei_uns_in_behandlung?: string; // Fixed typo
+        waren_sie_schon_einmal_bei_uns_in_behandlung?: string; // Fixed typo
         wurde_ein_hausbesuch_verordnet?: string;
         montag?: string[];
         dienstag?: string[];

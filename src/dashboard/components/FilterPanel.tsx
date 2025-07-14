@@ -10,7 +10,8 @@ import {
     Checkbox,
     Button,
     Text,
-    Box
+    Box,
+    TextButton
 } from '@wix/design-system';
 import { FilterState } from '../types';
 
@@ -84,20 +85,20 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
     return (
         <Card>
-            <Card.Header
-                title="Filterverfügbarkeit"
-            />
             <Card.Content>
-                <Button
-                    priority="secondary"
-                    size="small"
-                    onClick={onClearFilters}
-                >
-                    Alle Filter löschen
-                </Button>
+                <Box direction="vertical" gap="SP2" paddingBottom="SP2">
+                    <Text weight="normal">Filterverfügbarkeit</Text>
+                    <TextButton
+                        priority="tertiary"
+                        size="small"
+                        onClick={onClearFilters}
+                    >
+                        Alle Filter löschen
+                    </TextButton>
+                </Box>
                 <Box direction="vertical" gap="SP4">
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="bold">Tag</Text>
+                        <Text size="medium" weight="normal">Tag</Text>
                         <Dropdown
                             placeholder="Wähle einen Tag"
                             options={dayOptions}
@@ -107,7 +108,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="bold">Zeitfenster</Text>
+                        <Text size="medium" weight="normal">Zeitfenster</Text>
                         <Box direction="vertical" gap="SP1">
                             {timeSlotOptions.map((option) => (
                                 <Checkbox
@@ -122,7 +123,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="bold">Hausbesuch</Text>
+                        <Text size="medium" weight="normal">Hausbesuch</Text>
                         <Box direction="vertical" gap="SP1">
                             {homeVisitOptions.map((option) => (
                                 <Checkbox
@@ -137,7 +138,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="bold">Altersgruppe</Text>
+                        <Text size="medium" weight="normal">Altersgruppe</Text>
                         <Box direction="vertical" gap="SP1">
                             {ageGroupOptions.map((option) => (
                                 <Checkbox
