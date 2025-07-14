@@ -2,7 +2,7 @@
 // FIXED: PatientTable.tsx - Corrected Pagination Props
 // ==============================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Table,
     Button,
@@ -11,11 +11,16 @@ import {
     Badge,
     Pagination,
     PopoverMenu,
-    Box
+    Box,
+    Search,
+    Card,
+    TableToolbar,
+    TableActionCell
 } from '@wix/design-system';
 import * as Icons from '@wix/wix-ui-icons-common';
 import { PatientSubmission } from '../types';
 import { formatToGermanDate, calculateAge } from '../utils/helpers';
+
 
 interface PatientTableProps {
     patients: PatientSubmission[];
@@ -23,9 +28,12 @@ interface PatientTableProps {
     onPrintPatient: (patient: PatientSubmission) => void;
     onDeletePatient: (patientId: string) => void;
     onUpdatePatientStatus: (patientId: string, status: string) => void;
+    searchTerm: string;
+    onSearchChange: (value: string) => void;
+    totalPatients: number;
 }
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 50;
 
 export const PatientTable: React.FC<PatientTableProps> = ({
     patients,
@@ -33,17 +41,34 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     onPrintPatient,
     onDeletePatient,
     onUpdatePatientStatus,
+    searchTerm,
+    onSearchChange,
+    totalPatients,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortField, setSortField] = useState<string>('date');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    // Filter patients based on search term
+    const filteredPatients = patients.filter(patient => {
+        if (!searchTerm) return true;
+        const searchLower = searchTerm.toLowerCase();
+        const fullName = `${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.toLowerCase();
+        return fullName.includes(searchLower);
+    });
 
-    const totalPages = Math.ceil(patients.length / ITEMS_PER_PAGE);
+    const [isChangingPage, setIsChangingPage] = useState(false);
+
+    // Reset to first page when patients data changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [patients.length]);
+
+    const totalPages = Math.ceil(filteredPatients.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, patients.length);
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredPatients.length);
 
     // Sort patients
-    const sortedPatients = [...patients].sort((a, b) => {
+    const sortedPatients = [...filteredPatients].sort((a, b) => {
         let aValue, bValue;
 
         switch (sortField) {
@@ -101,23 +126,26 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     const columns = [
         {
             title: 'Name',
+            width: '30%',  // Make name column wider
             render: (patient: PatientSubmission) => (
                 <Box direction="horizontal" gap="SP2">
-                    <Avatar size="size18" />
-                    <Text>{`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}</Text>
+                    <Avatar size="size24" />
+                    <Text size="small">{`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}</Text>
                 </Box>
             ),
         },
         {
             title: `Datum (${sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
+            width: '15%',
             render: (patient: PatientSubmission) => (
-                <Text>
+                <Text size="small">
                     {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
                 </Text>
             ),
         },
         {
             title: 'HB',
+            width: '8%',
             render: (patient: PatientSubmission) => (
                 <Badge
                     skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'general'}
@@ -129,6 +157,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: 'WV',
+            width: '8%',
             render: (patient: PatientSubmission) => (
                 <Badge
                     skin={patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'warning'}
@@ -140,6 +169,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: 'K/E',
+            width: '8%',
             render: (patient: PatientSubmission) => {
                 if (!patient.submissions.geburtsdatum) return <Text>-</Text>;
 
@@ -159,6 +189,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: 'Alter',
+            width: '17%',
             render: (patient: PatientSubmission) => (
                 <Box
                     padding="8px"
@@ -176,48 +207,34 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: '',
-            width: '200px',
+            width: '120px',
             render: (patient: PatientSubmission) => (
-                <Box direction="horizontal" gap="SP2">
-                    <Button
-                        priority="secondary"
-                        size="small"
-                        prefixIcon={<Icons.Visible />}
-                        onClick={() => onViewPatient(patient)}
-                    />
-                    <Button
-                        priority="secondary"
-                        size="small"
-                        prefixIcon={<Icons.Print />}
-                        onClick={() => onPrintPatient(patient)}
-                    >
-                        Drucken
-                    </Button>
-                    <PopoverMenu
-                        triggerElement={
-                            <Button
-                                priority="secondary"
-                                size="small"
-                                prefixIcon={<Icons.More />}
-                            />
+                <TableActionCell
+                    secondaryActions={[
+                        {
+                            text: 'Vorschau',
+                            icon: <Icons.Visible />,
+                            onClick: () => onViewPatient(patient)
+                        },
+                        {
+                            text: 'Drucken',
+                            icon: <Icons.Print />,
+                            onClick: () => onPrintPatient(patient)
+                        },
+                        {
+                            text: 'Bearbeiten',
+                            icon: <Icons.Edit />,
+                            onClick: () => console.log('Edit', patient._id)
+                        },
+                        {
+                            text: 'Löschen',
+                            icon: <Icons.Delete />,
+                            onClick: () => onDeletePatient(patient._id),
+                            skin: 'destructive'
                         }
-                    >
-                        <PopoverMenu.MenuItem
-                            text="Notiz hinzufügen"
-                            prefixIcon={<Icons.Add />}
-                        />
-                        <PopoverMenu.MenuItem
-                            text="Datum bearbeiten"
-                            prefixIcon={<Icons.Edit />}
-                        />
-                        <PopoverMenu.MenuItem
-                            text="Löschen"
-                            prefixIcon={<Icons.Delete />}
-                            onClick={() => onDeletePatient(patient._id)}
-                            skin="destructive"
-                        />
-                    </PopoverMenu>
-                </Box>
+                    ]}
+                    numOfVisibleSecondaryActions={0}
+                />
             ),
         },
     ];
@@ -232,31 +249,93 @@ export const PatientTable: React.FC<PatientTableProps> = ({
 
     return (
         <Box direction="vertical" gap="SP4">
-            <Table
-                data={currentPatients}
-                columns={columns}
-                onSortClick={(columnData) => {
-                    if (typeof columnData.title === 'string') {
-                        handleSort(columnData.title.toLowerCase());
-                    }
+            {/* Integrated Table with Toolbar */}
+            <Box
+                style={{
+                    maxHeight: 'calc(100vh - 200px)',
+                    overflowY: 'visible',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px'
                 }}
-            />
+            >
+                <Table
+                    data={currentPatients}
+                    columns={columns}
+                    onSortClick={(columnData) => {
+                        if (typeof columnData.title === 'string') {
+                            handleSort(columnData.title.toLowerCase());
+                        }
+                    }}
+                    withWrapper={false}
+                >
+                    <Card>
+                        <TableToolbar>
+                            <TableToolbar.ItemGroup position="start">
+                                <TableToolbar.Item>
+                                    <Text size="medium" weight="normal">
+                                        {filteredPatients.length} von {totalPatients} Patienten
+                                    </Text>
+                                </TableToolbar.Item>
+                                {searchTerm && (
+                                    <TableToolbar.Item>
+                                        <TableToolbar.Label>
+                                            Gefiltert nach: "{searchTerm}"
+                                        </TableToolbar.Label>
+                                    </TableToolbar.Item>
+                                )}
+                            </TableToolbar.ItemGroup>
+                            <TableToolbar.ItemGroup position="end">
+                                <TableToolbar.Item>
+                                    <Box width="300">
+                                        <Search
+                                            value={searchTerm}
+                                            onChange={(e) => onSearchChange(e.target.value)}
+                                            placeholder="Nach Namen suchen..."
+                                            size="small"
+                                        />
+                                    </Box>
+                                </TableToolbar.Item>
+                            </TableToolbar.ItemGroup>
+                        </TableToolbar>
+                        <Table.Content />
+                    </Card>
+                </Table>
+            </Box>
 
             {totalPages > 1 && (
-                <Box textAlign="center">
+                <Box
+                    direction="horizontal"
+                    gap="SP4"
+                    align="center"
+
+                    padding="16px 0"
+                >
+                    <Box textAlign="center">
+                        <Text size="small">
+                            Zeige {startIndex + 1} bis {endIndex} von {filteredPatients.length} Patienten
+                            {searchTerm && ` (gefiltert von ${totalPatients} gesamt)`}
+                        </Text>
+                    </Box>
                     <Pagination
                         totalPages={totalPages}
                         currentPage={currentPage}
-                        onChange={(event) => setCurrentPage(event.page)}
+                        onChange={(event) => {
+                            setIsChangingPage(true);
+                            setCurrentPage(event.page);
+                            // Reset loading after a brief moment to show visual feedback
+                            setTimeout(() => setIsChangingPage(false), 100);
+                        }}
                     />
                 </Box>
             )}
 
-            <Box textAlign="center">
-                <Text size="small">
-                    Zeige {startIndex + 1} bis {endIndex} von {patients.length} Patienten
-                </Text>
-            </Box>
+            {totalPages <= 1 && (
+                <Box textAlign="center" padding="16px 0">
+                    <Text size="small">
+                        Zeige alle {patients.length} Patienten
+                    </Text>
+                </Box>
+            )}
         </Box>
     );
 };
