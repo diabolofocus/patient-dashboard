@@ -21,6 +21,16 @@ interface FilterPanelProps {
     onClearFilters: () => void;
 }
 
+function isAnyFilterActive(filters: FilterState): boolean {
+    return !!(
+        filters.selectedDay ||
+        filters.selectedTimeSlots.length > 0 ||
+        filters.selectedHomeVisit.length > 0 ||
+        filters.selectedAgeGroups.length > 0 ||
+        (filters.searchTerm && filters.searchTerm.trim() !== '')
+    );
+}
+
 export const FilterPanel: React.FC<FilterPanelProps> = ({
     filters,
     onFilterChange,
@@ -86,17 +96,20 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     return (
         <Card>
             <Card.Content>
-                <Box direction="vertical" gap="SP2" paddingBottom="SP2">
+                <Box direction="vertical" gap="SP2" paddingBottom="SP2" >
                     <Text weight="normal">Filterverfügbarkeit</Text>
-                    <TextButton
-                        priority="tertiary"
-                        size="small"
-                        onClick={onClearFilters}
-                    >
-                        Alle Filter löschen
-                    </TextButton>
+                    {isAnyFilterActive(filters) && (
+                        <TextButton
+                            priority="tertiary"
+                            size="small"
+                            onClick={onClearFilters}
+                        >
+                            Alle Filter löschen
+                        </TextButton>
+                    )}
                 </Box>
-                <Box direction="vertical" gap="SP4">
+
+                <Box direction="vertical" gap="SP4" minWidth="230px">
                     <Box direction="vertical" gap="SP2">
                         <Text size="medium" weight="normal">Tag</Text>
                         <Dropdown

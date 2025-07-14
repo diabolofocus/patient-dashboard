@@ -16,7 +16,8 @@ import {
   Pagination,
   Loader,
   Layout,
-  Cell
+  Cell,
+  CustomModalLayout
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
@@ -26,10 +27,14 @@ import { useFilters } from '../../hooks/useFilters';
 import { PatientTable } from '../../components/PatientTable';
 import { FilterPanel } from '../../components/FilterPanel';
 import { StatisticsCards } from '../../components/StatisticsCards';
+import { PatientDetailsModal } from '../../components/PatientDetailsModal';
+
 
 const PatientDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use the custom hook to fetch real patient data
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -122,11 +127,15 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handleViewPatient = (patient: any) => {
-    const patientName = `${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim();
-    dashboard.showToast({
-      message: `Öffne Details für ${patientName}`,
-      type: 'standard',
-    });
+    console.log('handleViewPatient called with:', patient);
+    setSelectedPatient(patient);
+    setIsModalOpen(true);
+    console.log('Modal should be open now, isModalOpen:', true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPatient(null);
   };
 
   const handlePrintPatient = (patient: any) => {
@@ -195,17 +204,27 @@ const PatientDashboard: React.FC = () => {
 
                 {/* Right Column - Filter Panel (30% = span 3.6, round to 4) */}
                 <Cell span={3}>
-                  <FilterPanel
-                    filters={filters}
-                    onFilterChange={updateFilter}
-                    onClearFilters={clearFilters}
-                  />
+                  <Box position="sticky" top="90px" maxHeight="calc(100vh - 115px)" overflow="scroll" background="white" borderRadius="8px">
+                    <FilterPanel
+                      filters={filters}
+                      onFilterChange={updateFilter}
+                      onClearFilters={clearFilters}
+                    />
+                  </Box>
                 </Cell>
               </Layout>
             </Cell>
           </Layout>
         </Page.Content>
       </Page>
+      {isModalOpen && (
+        <PatientDetailsModal
+          patient={selectedPatient}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onPrint={handlePrintPatient}
+        />
+      )}
     </WixDesignSystemProvider>
   );
 };

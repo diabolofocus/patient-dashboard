@@ -33,7 +33,7 @@ interface PatientTableProps {
     totalPatients: number;
 }
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 40;
 
 export const PatientTable: React.FC<PatientTableProps> = ({
     patients,
@@ -106,26 +106,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         }
     };
 
-    const getAgeColor = (birthDate: string): string => {
-        if (!birthDate) return '#CCCCCC';
-
-        const today = new Date();
-        const birth = new Date(birthDate);
-        let age = today.getFullYear() - birth.getFullYear();
-        const monthDiff = today.getMonth() - birth.getMonth();
-
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-            age--;
-        }
-
-        if (age <= 18) return '#C8DEFD';
-        if (age <= 120) return '#0D52BF';
-        return '#F0F0F0';
-    };
     const columns = [
         {
             title: 'Name',
-            width: '30%',  // Make name column wider
+            width: '30%',
+            minWidth: '200px',
             render: (patient: PatientSubmission) => (
                 <Box direction="horizontal" gap="SP2" style={{ alignItems: 'center' }}>
                     <Avatar size="size24" />
@@ -136,6 +121,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         {
             title: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
             width: '15%',
+            minWidth: '120px',
             render: (patient: PatientSubmission) => (
                 <Text size="small">
                     {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
@@ -147,9 +133,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: 'Alter',
-            width: '17%',
+            width: '15%',
+            minWidth: '300px',
             render: (patient: PatientSubmission) => (
-                <Text size="small">
+                <Text size="small" style={{ whiteSpace: 'nowrap' }}>
                     {patient.submissions.geburtsdatum
                         ? calculateAge(patient.submissions.geburtsdatum)
                         : 'Kein Geburtsdatum'
@@ -164,9 +151,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                 </Box>
             ),
             width: '8%',
+            minWidth: '80px',
             render: (patient: PatientSubmission) => (
                 <Badge
-                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralOutlined'}
+                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
                     size="small"
                 >
                     {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'Ja' : 'Nein'}
@@ -180,6 +168,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                 </Box>
             ),
             width: '8%',
+            minWidth: '100px',
             render: (patient: PatientSubmission) => (
                 <Badge
                     skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'standard'}
@@ -191,7 +180,8 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             title: 'K/E',
-            width: '8%',
+            width: '10%',
+            minWidth: '140px',
             render: (patient: PatientSubmission) => {
                 if (!patient.submissions.geburtsdatum) return <Text>-</Text>;
 
@@ -218,7 +208,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         {
                             text: 'Vorschau',
                             icon: <Icons.Visible />,
-                            onClick: () => onViewPatient(patient)
+                            onClick: () => {
+  console.log('Vorschau clicked', patient);
+  onViewPatient(patient);
+}
                         },
                         {
                             text: 'Drucken',
@@ -256,9 +249,6 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             {/* Integrated Table with Toolbar */}
             <Box
                 style={{
-                    height: 'calc(100vh - 300px)',
-                    maxHeight: 'calc(100vh - 300px)',
-                    overflowY: 'visible',
                     border: '1px solid #e0e0e0',
                     borderRadius: '8px',
                     display: 'flex',
@@ -275,6 +265,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     .patient-table-container table tbody tr:hover td {
                         background-color: transparent !important;
                     }
+              
+                    
+                    /* Ensure table has a minimum width */
+                    table { min-width: 900px !important; }
                 `}</style>
                 <Box>
                     <Table
@@ -324,18 +318,12 @@ export const PatientTable: React.FC<PatientTableProps> = ({
 
             {totalPages > 1 && (
                 <Box
-                    direction="horizontal"
-                    gap="SP4"
+                    direction="vertical"
+                    gap="SP1"
                     align="center"
 
-                    padding="16px 0"
+
                 >
-                    <Box textAlign="center">
-                        <Text size="small">
-                            Zeige {startIndex + 1} bis {endIndex} von {filteredPatients.length} Patienten
-                            {searchTerm && ` (gefiltert von ${totalPatients} gesamt)`}
-                        </Text>
-                    </Box>
                     <Pagination
                         totalPages={totalPages}
                         currentPage={currentPage}
@@ -346,6 +334,12 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                             setTimeout(() => setIsChangingPage(false), 100);
                         }}
                     />
+                    <Box textAlign="center">
+                        <Text size="small">
+                            Zeige {startIndex + 1} bis {endIndex} von {filteredPatients.length} Patienten
+                            {searchTerm && ` (gefiltert von ${totalPatients} gesamt)`}
+                        </Text>
+                    </Box>
                 </Box>
             )}
 
