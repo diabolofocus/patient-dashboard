@@ -162,7 +162,11 @@ const PatientDashboard: React.FC = () => {
 
         <Page.Content>
           {/* Main Container - Vertical Stack */}
-          <Box direction="vertical" gap="SP6" padding="24px">
+          <Box
+            direction="vertical"
+            gap="SP4"
+
+          >
 
             {/* Statistics Cards Section - Horizontal Row at Top */}
             <StatisticsCards
@@ -192,7 +196,12 @@ const PatientDashboard: React.FC = () => {
               </Box>
 
               {/* Right Column - Filter Panel */}
-              <Box width="300px">
+              <Box
+                width="300px"
+                minWidth="300px"
+                maxWidth="300px"
+                flexShrink={0}
+              >
                 <FilterPanel
                   filters={filters}
                   onFilterChange={updateFilter}

@@ -86,17 +86,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         <Card>
             <Card.Header
                 title="Filterverfügbarkeit"
-                suffix={
-                    <Button
-                        priority="secondary"
-                        size="small"
-                        onClick={onClearFilters}
-                    >
-                        Alle Filter löschen
-                    </Button>
-                }
             />
             <Card.Content>
+                <Button
+                    priority="secondary"
+                    size="small"
+                    onClick={onClearFilters}
+                >
+                    Alle Filter löschen
+                </Button>
                 <Box direction="vertical" gap="SP4">
                     <Box direction="vertical" gap="SP2">
                         <Text size="medium" weight="bold">Tag</Text>

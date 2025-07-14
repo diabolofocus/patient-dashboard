@@ -122,24 +122,38 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         if (age <= 120) return '#0D52BF';
         return '#F0F0F0';
     };
-
     const columns = [
         {
             title: 'Name',
             width: '30%',  // Make name column wider
             render: (patient: PatientSubmission) => (
-                <Box direction="horizontal" gap="SP2">
+                <Box direction="horizontal" gap="SP2" style={{ alignItems: 'center' }}>
                     <Avatar size="size24" />
                     <Text size="small">{`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}</Text>
                 </Box>
             ),
         },
         {
-            title: `Datum (${sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
+            title: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
             width: '15%',
             render: (patient: PatientSubmission) => (
                 <Text size="small">
                     {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
+                </Text>
+            ),
+            sortable: true,
+            sortDescending: sortField === 'date' ? sortOrder === 'desc' : undefined,
+            onSortClick: () => handleSort('date'),
+        },
+        {
+            title: 'Alter',
+            width: '17%',
+            render: (patient: PatientSubmission) => (
+                <Text size="small">
+                    {patient.submissions.geburtsdatum
+                        ? calculateAge(patient.submissions.geburtsdatum)
+                        : 'Kein Geburtsdatum'
+                    }
                 </Text>
             ),
         },
@@ -163,7 +177,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     skin={patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'warning'}
                     size="small"
                 >
-                    {patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neu' : 'Alt'}
+                    {patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'NA' : 'WV'}
                 </Badge>
             ),
         },
@@ -186,24 +200,6 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     </Badge>
                 );
             },
-        },
-        {
-            title: 'Alter',
-            width: '17%',
-            render: (patient: PatientSubmission) => (
-                <Box
-                    padding="8px"
-                    backgroundColor={getAgeColor(patient.submissions.geburtsdatum || '')}
-                    borderRadius="4px"
-                >
-                    <Text size="small">
-                        {patient.submissions.geburtsdatum
-                            ? calculateAge(patient.submissions.geburtsdatum)
-                            : 'Kein Geburtsdatum'
-                        }
-                    </Text>
-                </Box>
-            ),
         },
         {
             title: '',
@@ -257,14 +253,25 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     border: '1px solid #e0e0e0',
                     borderRadius: '8px'
                 }}
+                className="patient-table-container"
             >
+                <style>{`
+                    .patient-table-container table tbody tr {
+                        transition: background-color 0.15s ease;
+                    }
+                    .patient-table-container table tbody tr:hover {
+                        background-color: rgba(59, 130, 246, 0.08) !important;
+                    }
+                    .patient-table-container table tbody tr:hover td {
+                        background-color: transparent !important;
+                    }
+                `}</style>
                 <Table
                     data={currentPatients}
                     columns={columns}
-                    onSortClick={(columnData) => {
-                        if (typeof columnData.title === 'string') {
-                            handleSort(columnData.title.toLowerCase());
-                        }
+                    onSortClick={(column) => {
+                        console.log('Sort clicked:', column); // Debug log
+                        handleSort('date');
                     }}
                     withWrapper={false}
                 >
