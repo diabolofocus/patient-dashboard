@@ -158,11 +158,15 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             ),
         },
         {
-            title: 'HB',
+            title: (
+                <Box direction="horizontal" gap="SP1" align="center">
+                    <Text>HB</Text>
+                </Box>
+            ),
             width: '8%',
             render: (patient: PatientSubmission) => (
                 <Badge
-                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'general'}
+                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralOutlined'}
                     size="small"
                 >
                     {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'Ja' : 'Nein'}
@@ -170,14 +174,18 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             ),
         },
         {
-            title: 'WV',
+            title: (
+                <Box direction="horizontal" gap="SP1" align="center">
+                    <Text>WV</Text>
+                </Box>
+            ),
             width: '8%',
             render: (patient: PatientSubmission) => (
                 <Badge
-                    skin={patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'warning'}
+                    skin={patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'standard'}
                     size="small"
                 >
-                    {patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'NA' : 'WV'}
+                    {patient.submissions.wurden_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neu' : 'Alt'}
                 </Badge>
             ),
         },
@@ -248,12 +256,14 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             {/* Integrated Table with Toolbar */}
             <Box
                 style={{
-                    maxHeight: 'calc(100vh - 200px)',
-                    overflowY: 'visible',
+                    height: 'calc(100vh - 300px)',
+                    maxHeight: 'calc(100vh - 300px)',
+                    overflowY: 'auto',
                     border: '1px solid #e0e0e0',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
-                className="patient-table-container"
             >
                 <style>{`
                     .patient-table-container table tbody tr {
@@ -266,47 +276,50 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         background-color: transparent !important;
                     }
                 `}</style>
-                <Table
-                    data={currentPatients}
-                    columns={columns}
-                    onSortClick={(column) => {
-                        console.log('Sort clicked:', column); // Debug log
-                        handleSort('date');
-                    }}
-                    withWrapper={false}
-                >
-                    <Card>
-                        <TableToolbar>
-                            <TableToolbar.ItemGroup position="start">
-                                <TableToolbar.Item>
-                                    <Text size="medium" weight="normal">
-                                        {filteredPatients.length} von {totalPatients} Patienten
-                                    </Text>
-                                </TableToolbar.Item>
-                                {searchTerm && (
+                <Box style={{ height: '100%', overflow: 'visible' }}>
+                    <Table
+                        data={currentPatients}
+                        columns={columns}
+                        onSortClick={(column) => {
+                            handleSort('date');
+                        }}
+                        withWrapper={false}
+                    >
+                        <Card>
+                            <TableToolbar>
+                                <TableToolbar.ItemGroup position="start">
                                     <TableToolbar.Item>
-                                        <TableToolbar.Label>
-                                            Gefiltert nach: "{searchTerm}"
-                                        </TableToolbar.Label>
+                                        <Text size="medium" weight="normal">
+                                            {filteredPatients.length} von {totalPatients} Patienten
+                                        </Text>
                                     </TableToolbar.Item>
-                                )}
-                            </TableToolbar.ItemGroup>
-                            <TableToolbar.ItemGroup position="end">
-                                <TableToolbar.Item>
-                                    <Box width="300">
-                                        <Search
-                                            value={searchTerm}
-                                            onChange={(e) => onSearchChange(e.target.value)}
-                                            placeholder="Nach Namen suchen..."
-                                            size="small"
-                                        />
-                                    </Box>
-                                </TableToolbar.Item>
-                            </TableToolbar.ItemGroup>
-                        </TableToolbar>
-                        <Table.Content />
-                    </Card>
-                </Table>
+                                    {searchTerm && (
+                                        <TableToolbar.Item>
+                                            <TableToolbar.Label>
+                                                Gefiltert nach: "{searchTerm}"
+                                            </TableToolbar.Label>
+                                        </TableToolbar.Item>
+                                    )}
+                                </TableToolbar.ItemGroup>
+                                <TableToolbar.ItemGroup position="end">
+                                    <TableToolbar.Item>
+                                        <Box width="300">
+                                            <Search
+                                                value={searchTerm}
+                                                onChange={(e) => onSearchChange(e.target.value)}
+                                                placeholder="Nach Namen suchen..."
+                                                size="small"
+                                            />
+                                        </Box>
+                                    </TableToolbar.Item>
+                                </TableToolbar.ItemGroup>
+                            </TableToolbar>
+                            <Box style={{ flex: 1, overflow: 'auto' }}>
+                                <Table.Content />
+                            </Box>
+                        </Card>
+                    </Table>
+                </Box>
             </Box>
 
             {totalPages > 1 && (

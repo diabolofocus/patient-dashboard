@@ -25,9 +25,16 @@
 .contentLayout {
     display: grid;
     grid-template-columns: 1fr 280px;
-    /* Table takes most space, filter panel on right */
+    width: 100%;
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+}
+
+.filterPanel {
+    height: 100%;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Filter panel - positioned on the right */
@@ -80,22 +87,7 @@
 }
 
 /* Mobile responsiveness */
-@media (max-width: 1200px) {
-    .contentLayout {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
 
-    .filterPanel {
-        position: static;
-        order: 1;
-        /* Move filter panel above table on mobile */
-    }
-
-    .mainContent {
-        order: 2;
-    }
-}
 
 /* Ensure proper vertical spacing */
 .dashboard>*+* {

@@ -14,7 +14,9 @@ import {
   Avatar,
   Card,
   Pagination,
-  Loader
+  Loader,
+  Layout,
+  Cell
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
@@ -161,56 +163,47 @@ const PatientDashboard: React.FC = () => {
         />
 
         <Page.Content>
-          {/* Main Container - Vertical Stack */}
-          <Box
-            direction="vertical"
-            gap="SP4"
-
-          >
-
-            {/* Statistics Cards Section - Horizontal Row at Top */}
-            <StatisticsCards
-              totalPatients={allSubmissions.length}
-              waitingTime={waitingTime}
-              ageGroups={ageGroups}
-              genderGroups={genderGroups}
-              currentTime={currentTime}
-              currentDate={currentDate}
-            />
-
-            {/* Main Content Area - Two Column Layout */}
-            <Box direction="horizontal" gap="SP6" width="100%">
-
-              {/* Left Column - Patient Table */}
-              <Box direction="vertical" gap="SP4" flexGrow={1}>
-                <PatientTable
-                  patients={filteredSubmissions}
-                  onViewPatient={handleViewPatient}
-                  onPrintPatient={handlePrintPatient}
-                  onDeletePatient={(id) => console.log('Delete', id)}
-                  onUpdatePatientStatus={(id, status) => console.log('Update status', id, status)}
-                  searchTerm={filters.searchTerm}
-                  onSearchChange={(value) => updateFilter('searchTerm', value)}
+          <Layout>
+            <Cell>
+              {/* Statistics Cards Section - Full Width */}
+              <Box marginBottom="SP4">
+                <StatisticsCards
                   totalPatients={allSubmissions.length}
+                  waitingTime={waitingTime}
+                  ageGroups={ageGroups}
+                  genderGroups={genderGroups}
+                  currentTime={currentTime}
+                  currentDate={currentDate}
                 />
               </Box>
 
-              {/* Right Column - Filter Panel */}
-              <Box
-                width="300px"
-                minWidth="300px"
-                maxWidth="300px"
-                flexShrink={0}
-              >
-                <FilterPanel
-                  filters={filters}
-                  onFilterChange={updateFilter}
-                  onClearFilters={clearFilters}
-                />
-              </Box>
+              {/* Main Content Area - Two Column Layout */}
+              <Layout>
+                {/* Left Column - Patient Table (70% = span 8.4, round to 8) */}
+                <Cell span={9}>
+                  <PatientTable
+                    patients={filteredSubmissions}
+                    onViewPatient={handleViewPatient}
+                    onPrintPatient={handlePrintPatient}
+                    onDeletePatient={(id) => console.log('Delete', id)}
+                    onUpdatePatientStatus={(id, status) => console.log('Update status', id, status)}
+                    searchTerm={filters.searchTerm}
+                    onSearchChange={(value) => updateFilter('searchTerm', value)}
+                    totalPatients={allSubmissions.length}
+                  />
+                </Cell>
 
-            </Box>
-          </Box>
+                {/* Right Column - Filter Panel (30% = span 3.6, round to 4) */}
+                <Cell span={3}>
+                  <FilterPanel
+                    filters={filters}
+                    onFilterChange={updateFilter}
+                    onClearFilters={clearFilters}
+                  />
+                </Cell>
+              </Layout>
+            </Cell>
+          </Layout>
         </Page.Content>
       </Page>
     </WixDesignSystemProvider>
