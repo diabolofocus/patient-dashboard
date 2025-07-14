@@ -102,8 +102,8 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         {
             title: 'Name',
             render: (patient: PatientSubmission) => (
-                <Box direction="horizontal" gap="SP2" align="center">
-                    <Avatar size="size30" />
+                <Box direction="horizontal" gap="SP2">
+                    <Avatar size="size18" />
                     <Text>{`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}</Text>
                 </Box>
             ),
@@ -184,9 +184,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         size="small"
                         prefixIcon={<Icons.Visible />}
                         onClick={() => onViewPatient(patient)}
-                    >
-                        Vorschau
-                    </Button>
+                    />
                     <Button
                         priority="secondary"
                         size="small"
