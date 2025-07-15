@@ -15,11 +15,15 @@ import {
     Search,
     Card,
     TableToolbar,
-    TableActionCell
+    TableActionCell,
+    Input,
+    IconButton
 } from '@wix/design-system';
 import * as Icons from '@wix/wix-ui-icons-common';
 import { PatientSubmission } from '../types';
 import { formatToGermanDate, calculateAge } from '../utils/helpers';
+import { useNotes } from '../hooks/useNotes';
+
 
 
 interface PatientTableProps {
@@ -48,6 +52,29 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [sortField, setSortField] = useState<string>('date');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [expandedNotes, setExpandedNotes] = useState<{ [key: string]: boolean }>({});
+
+
+
+    const handleNoteChange = (submissionId: string, noteText: string) => {
+        updateNoteText(submissionId, noteText);
+        const patient = patients.find(p => p._id === submissionId);
+        if (patient) {
+            const email = patient.submissions.email_726a?.trim() || '';
+            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+            saveNote(submissionId, email, name, noteText);
+        }
+    };
+
+    const toggleNoteExpansion = (submissionId: string) => {
+        setExpandedNotes(prev => ({
+            ...prev,
+            [submissionId]: !prev[submissionId]
+        }));
+    };
+
+    // Use the notes hook
+    const { notes, loadingNotes, loadNoteForSubmission, saveNote, updateNoteText } = useNotes();
     // Filter patients based on search term
     const filteredPatients = patients.filter(patient => {
         if (!searchTerm) return true;
@@ -111,12 +138,97 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             title: 'Name',
             width: '30%',
             minWidth: '200px',
-            render: (patient: PatientSubmission) => (
-                <Box direction="horizontal" gap="SP2" style={{ alignItems: 'center' }}>
-                    <Avatar size="size24" />
-                    <Text size="small">{`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}</Text>
-                </Box>
-            ),
+            render: (patient: PatientSubmission) => {
+                const note = notes[patient._id];
+                const isExpanded = expandedNotes[patient._id];
+                const hasNote = note && note.notes && note.notes.trim() !== '';
+                const showNoteInput = hasNote || isExpanded;
+
+                return (
+                    <Box direction="horizontal" gap="SP2" style={{ alignItems: 'flex-start' }}>
+                        <Avatar size="size24" />
+                        <Box direction="vertical" gap="SP1" style={{ flex: 1 }}>
+                            <Text size="small">
+                                {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
+                            </Text>
+
+                            {/* Show existing note as text */}
+                            {hasNote && !isExpanded && (
+                                <Box
+                                    style={{
+                                        padding: '4px 8px',
+                                        backgroundColor: '#F3F4F6',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        position: 'relative'
+                                    }}
+                                >
+                                    <IconButton
+                                        skin="inverted"
+                                        size="tiny"
+                                        onClick={() => toggleNoteExpansion(patient._id)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            height: '100%',
+                                            backgroundColor: 'transparent',
+                                            border: 'none'
+                                        }}
+                                    >
+                                        <div style={{ opacity: 0 }}>edit</div>
+                                    </IconButton>
+                                    <Text size="tiny" secondary>
+                                        {note.notes}
+                                    </Text>
+                                </Box>
+                            )}
+
+                            {/* Show input when editing or adding new note */}
+                            {showNoteInput && isExpanded && (
+                                <Box style={{ width: '100%', maxWidth: '250px' }}>
+                                    <Input
+                                        placeholder="Notiz hinzufügen..."
+                                        value={note?.notes || ''}
+                                        onChange={(e) => handleNoteChange(patient._id, e.target.value)}
+                                        size="small"
+                                        status={loadingNotes[patient._id] ? 'loading' : undefined}
+                                        onBlur={() => {
+                                            // Close input if note is empty
+                                            if (!note?.notes?.trim()) {
+                                                toggleNoteExpansion(patient._id);
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                toggleNoteExpansion(patient._id);
+                                            }
+                                            if (e.key === 'Escape') {
+                                                toggleNoteExpansion(patient._id);
+                                            }
+                                        }}
+                                    />
+                                </Box>
+                            )}
+
+                            {/* Show add note button when no note exists and not expanded */}
+                            {!hasNote && !isExpanded && (
+                                <Box>
+                                    <Button
+                                        skin="light"
+                                        size="tiny"
+                                        onClick={() => toggleNoteExpansion(patient._id)}
+                                        prefixIcon={<Icons.Add />}
+                                    >
+                                        Notiz
+                                    </Button>
+                                </Box>
+                            )}
+                        </Box>
+                    </Box>
+                );
+            },
         },
         {
             title: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
@@ -188,6 +300,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                 const today = new Date();
                 const birth = new Date(patient.submissions.geburtsdatum);
                 let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
 
                 return (
                     <Badge
@@ -199,40 +316,51 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                 );
             },
         },
+
         {
             title: '',
             width: '120px',
-            render: (patient: PatientSubmission) => (
-                <TableActionCell
-                    secondaryActions={[
-                        {
-                            text: 'Vorschau',
-                            icon: <Icons.Visible />,
-                            onClick: () => {
-  console.log('Vorschau clicked', patient);
-  onViewPatient(patient);
-}
-                        },
-                        {
-                            text: 'Drucken',
-                            icon: <Icons.Print />,
-                            onClick: () => onPrintPatient(patient)
-                        },
-                        {
-                            text: 'Bearbeiten',
-                            icon: <Icons.Edit />,
-                            onClick: () => console.log('Edit', patient._id)
-                        },
-                        {
-                            text: 'Löschen',
-                            icon: <Icons.Delete />,
-                            onClick: () => onDeletePatient(patient._id),
-                            skin: 'destructive'
-                        }
-                    ]}
-                    numOfVisibleSecondaryActions={0}
-                />
-            ),
+            render: (patient: PatientSubmission) => {
+                const note = notes[patient._id];
+                const hasNote = note && note.notes && note.notes.trim() !== '';
+
+                return (
+                    <TableActionCell
+                        secondaryActions={[
+                            {
+                                text: 'Vorschau',
+                                icon: <Icons.Visible />,
+                                onClick: () => {
+                                    console.log('Vorschau clicked', patient);
+                                    onViewPatient(patient);
+                                }
+                            },
+                            {
+                                text: 'Drucken',
+                                icon: <Icons.Print />,
+                                onClick: () => onPrintPatient(patient)
+                            },
+                            {
+                                text: hasNote ? 'Notiz bearbeiten' : 'Notiz hinzufügen',
+                                icon: hasNote ? <Icons.Edit /> : <Icons.Add />,
+                                onClick: () => toggleNoteExpansion(patient._id)
+                            },
+                            {
+                                text: 'Bearbeiten',
+                                icon: <Icons.Edit />,
+                                onClick: () => console.log('Edit', patient._id)
+                            },
+                            {
+                                text: 'Löschen',
+                                icon: <Icons.Delete />,
+                                onClick: () => onDeletePatient(patient._id),
+                                skin: 'destructive'
+                            }
+                        ]}
+                        numOfVisibleSecondaryActions={0}
+                    />
+                );
+            },
         },
     ];
 
@@ -243,6 +371,15 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             </Box>
         );
     }
+
+    // Load notes for visible patients
+    useEffect(() => {
+        currentPatients.forEach(patient => {
+            const email = patient.submissions.email_726a?.trim() || '';
+            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+            loadNoteForSubmission(patient._id, email, name);
+        });
+    }, [currentPatients, loadNoteForSubmission]);
 
     return (
         <Box direction="vertical" gap="SP4">
@@ -265,7 +402,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     .patient-table-container table tbody tr:hover td {
                         background-color: transparent !important;
                     }
-              
+                    
+                    .table-row-hover:hover {
+                        background-color: rgba(59, 130, 246, 0.08) !important;
+                    }
                     
                     /* Ensure table has a minimum width */
                     table { min-width: 900px !important; }

@@ -9,6 +9,7 @@ import {
 } from '@wix/design-system';
 import * as Icons from '@wix/wix-ui-icons-common';
 import { PatientSubmission } from '../types';
+import { useNotes } from '../hooks/useNotes';
 
 interface PatientDetailsModalProps {
     patient: PatientSubmission | null;
@@ -118,26 +119,22 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
             isOpen={isOpen}
             onRequestClose={onClose}
             shouldCloseOnOverlayClick={true}
-            shouldDisplayCloseButton={false}
+            shouldDisplayCloseButton={true}
             contentLabel={`Patientendetails - ${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
         >
             <Box
-                style={{
-                    width: '100vw',
-                    maxWidth: '100vw',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
+                direction="vertical"
+                style={{ justifyContent: "space-between" }}
+                align="center"
+                gap="SP2"
             >
                 {/* Top Bar with Print Button */}
                 <Box
                     direction="vertical"
                     style={{ justifyContent: "space-between" }}
                     align="center"
-                    backgroundColor="white"
-
                 >
-                    <Box direction="horizontal" gap="SP2">
+                    <Box direction="horizontal" gap="SP2" >
                         <Button
                             size="medium"
                             prefixIcon={<Icons.Print />}
@@ -145,353 +142,349 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                         >
                             Drucken
                         </Button>
-                        <IconButton
-                            icon={<Icons.X />}
-                            onClick={onClose}
-                            priority="tertiary"
-                            size="medium"
-                        />
                     </Box>
                 </Box>
-
-                {/* Scrollable Content Area */}
                 <Box
-                    height="auto"
-                    maxHeight="calc(100vh - 100px)"
+                    height="calc(100vh - 100px)"
+                    backgroundColor="#f0f0f0"
+                    borderRadius="8px"
                     direction="vertical"
-                    padding="80px"
-                    gap="SP4"
-                    borderRadius="SP4"
-                    style={{
-                        flex: 1,
-                        overflow: 'auto',
-                        padding: '80px',
-                        display: 'flex',
-                        justifyContent: 'center'
-                    }}
+                    padding="SP4"
                 >
-                    {/* A4 Card */}
+                    {/* Scrollable Content Area */}
                     <Box
-                        style={{
-                            width: '210mm',
-                            minHeight: '297mm',
-                            backgroundColor: 'white',
-                            padding: '30px',
-                            borderRadius: '8px',
-                            fontFamily: 'Arial, sans-serif',
-                            fontSize: '12px',
-                            lineHeight: '1.4',
-                            overflow: 'scroll'
-                        }}
                         direction="vertical"
-                        padding="SP4"
+                        style={{
+                            flex: 1,
+                            overflow: 'auto',
+                            padding: '20px'
+                        }}
                     >
-                        {/* Header Image */}
-                        <Box align="center" marginBottom="SP6">
-                            <img
-                                src="https://static.wixstatic.com/media/061196_bcdbd8aeed994cc29b8850c78bd7c14e~mv2.jpg"
-                                alt="Header"
-                                style={{ width: '460px', height: 'auto', maxWidth: '100%' }}
-                            />
+                        {/* A4 Card */}
+                        <Box
+                            style={{
+                                width: '210mm',
+                                minHeight: '297mm',
+                                backgroundColor: 'white',
+                                padding: '30px',
+                                fontFamily: 'Arial, sans-serif',
+                                fontSize: '12px',
+                                lineHeight: '1.4',
+                                marginTop: '200px',
+                                marginBottom: '40px',
+                                marginLeft: 'auto',
+                                marginRight: 'auto'
+                            }}
+                            direction="vertical"
+                            padding="SP4"
+                        >
+                            {/* Header Image */}
+                            <Box align="center" marginBottom="SP6">
+                                <img
+                                    src="https://static.wixstatic.com/media/061196_bcdbd8aeed994cc29b8850c78bd7c14e~mv2.jpg"
+                                    alt="Header"
+                                    style={{ width: '460px', height: 'auto', maxWidth: '100%' }}
+                                />
+                            </Box>
+
+                            {/* Title */}
+                            <Heading align="center" size="medium" style={{ marginBottom: '20px' }}>
+                                Anmeldung
+                            </Heading>
+
+                            {/* Patient Information Table */}
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                marginBottom: '30px',
+                                marginTop: '20px',
+                                fontSize: '12px'
+                            }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa',
+                                            width: '25%'
+                                        }}>
+                                            Name, Vorname
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            width: '75%'
+                                        }} colSpan={3}>
+                                            {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Geschlecht
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.geschlecht || ''}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Geburtsdatum
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.geburtsdatum
+                                                ? formatToGermanDate(patient.submissions.geburtsdatum)
+                                                : 'Kein Geburtsdatum'
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Adresse
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
+                                            {patient.submissions.address_51bd || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Telefon
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.telefon || ''}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            AB/Mailbox aktiv?
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.ab_mailbox_activ || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Email
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
+                                            {patient.submissions.email_726a || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Name der anmeldenden Person
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.name_der_anmeldenden_person || ''}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Verhältnis
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.verhaeltnis || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Hausbesuch verordnet?
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.wurde_ein_hausbesuch_verordnet || ''}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Zuzahlungsbefreit?
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.bei_volljaehrigen_patienten_zuzahlungsbefreit || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa',
+                                            verticalAlign: 'top'
+                                        }}>
+                                            Diagnose oder Grund Ihrer Anmeldung
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            minHeight: '60px',
+                                            verticalAlign: 'top'
+                                        }} colSpan={3}>
+                                            {patient.submissions.diagnose_oder_grund_ihrer_anmeldung || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Verordnende/r Ärztin/Arzt
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.verordnende_r_aerztin_arzt || ''}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Krankenkasse
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {patient.submissions.krankenkasse || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Schon einmal bei uns in Behandlung?
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
+                                            {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung || ''}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            {/* Availability Section */}
+                            <Heading align="center" size="medium" style={{ marginBottom: '20px' }}>
+                                Verfügbarkeit
+                            </Heading>
+
+                            <Box marginBottom="SP6" marginTop="20px">
+                                {renderAvailabilityGrid()}
+                            </Box>
+
+                            {/* Additional Information */}
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '12px'
+                            }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa',
+                                            width: '25%'
+                                        }}>
+                                            Kurzfristige Termine
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
+                                            {patient.submissions.wuerden_sie_auch_kurzfristige_termine_wahrnehmen_koennen_wenn_z || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa',
+                                            verticalAlign: 'top'
+                                        }}>
+                                            Etwas Wichtiges?
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            minHeight: '60px',
+                                            verticalAlign: 'top'
+                                        }} colSpan={3}>
+                                            {patient.submissions.noch_etwas_wichtiges || ''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Datum
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                                            {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            border: '1px solid #ddd',
+                                            fontWeight: 'bold',
+                                            backgroundColor: '#f8f9fa'
+                                        }}>
+                                            Unterschrift
+                                        </td>
+                                        <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>
+                                            {patient.submissions.signature_3730?.[0]?.url && (
+                                                <img
+                                                    src={patient.submissions.signature_3730[0].url}
+                                                    alt="Unterschrift"
+                                                    style={{ maxWidth: '100px', maxHeight: '50px' }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </Box>
-
-                        {/* Title */}
-                        <Heading align="center" size="medium" style={{ marginBottom: '20px' }}>
-                            Anmeldung
-                        </Heading>
-
-                        {/* Patient Information Table */}
-                        <table style={{
-                            width: '100%',
-                            borderCollapse: 'collapse',
-                            marginBottom: '30px',
-                            marginTop: '20px',
-                            fontSize: '12px'
-                        }}>
-                            <tbody>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa',
-                                        width: '25%'
-                                    }}>
-                                        Name, Vorname
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        width: '75%'
-                                    }} colSpan={3}>
-                                        {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Geschlecht
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.geschlecht || ''}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Geburtsdatum
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.geburtsdatum
-                                            ? formatToGermanDate(patient.submissions.geburtsdatum)
-                                            : 'Kein Geburtsdatum'
-                                        }
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Adresse
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
-                                        {patient.submissions.address_51bd || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Telefon
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.telefon || ''}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        AB/Mailbox aktiv?
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.ab_mailbox_activ || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Email
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
-                                        {patient.submissions.email_726a || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Name der anmeldenden Person
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.name_der_anmeldenden_person || ''}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Verhältnis
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.verhaeltnis || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Hausbesuch verordnet?
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.wurde_ein_hausbesuch_verordnet || ''}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Zuzahlungsbefreit?
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.bei_volljaehrigen_patienten_zuzahlungsbefreit || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa',
-                                        verticalAlign: 'top'
-                                    }}>
-                                        Diagnose oder Grund Ihrer Anmeldung
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        minHeight: '60px',
-                                        verticalAlign: 'top'
-                                    }} colSpan={3}>
-                                        {patient.submissions.diagnose_oder_grund_ihrer_anmeldung || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Verordnende/r Ärztin/Arzt
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.verordnende_r_aerztin_arzt || ''}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Krankenkasse
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {patient.submissions.krankenkasse || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Schon einmal bei uns in Behandlung?
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
-                                        {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung || ''}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        {/* Availability Section */}
-                        <Heading align="center" size="medium" style={{ marginBottom: '20px' }}>
-                            Verfügbarkeit
-                        </Heading>
-
-                        <Box marginBottom="SP6" marginTop="20px">
-                            {renderAvailabilityGrid()}
-                        </Box>
-
-                        {/* Additional Information */}
-                        <table style={{
-                            width: '100%',
-                            borderCollapse: 'collapse',
-                            fontSize: '12px'
-                        }}>
-                            <tbody>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa',
-                                        width: '25%'
-                                    }}>
-                                        Kurzfristige Termine
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }} colSpan={3}>
-                                        {patient.submissions.wuerden_sie_auch_kurzfristige_termine_wahrnehmen_koennen_wenn_z || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa',
-                                        verticalAlign: 'top'
-                                    }}>
-                                        Etwas Wichtiges?
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        minHeight: '60px',
-                                        verticalAlign: 'top'
-                                    }} colSpan={3}>
-                                        {patient.submissions.noch_etwas_wichtiges || ''}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Datum
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#f8f9fa'
-                                    }}>
-                                        Unterschrift
-                                    </td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>
-                                        {patient.submissions.signature_3730?.[0]?.url && (
-                                            <img
-                                                src={patient.submissions.signature_3730[0].url}
-                                                alt="Unterschrift"
-                                                style={{ maxWidth: '100px', maxHeight: '50px' }}
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </Box>
                 </Box>
             </Box>

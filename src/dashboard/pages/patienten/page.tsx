@@ -28,6 +28,10 @@ import { PatientTable } from '../../components/PatientTable';
 import { FilterPanel } from '../../components/FilterPanel';
 import { StatisticsCards } from '../../components/StatisticsCards';
 import { PatientDetailsModal } from '../../components/PatientDetailsModal';
+import { printPatientDetails } from '../../utils/printUtils';
+import { useNotes } from '../../hooks/useNotes';
+
+
 
 
 const PatientDashboard: React.FC = () => {
@@ -139,11 +143,7 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handlePrintPatient = (patient: any) => {
-    const patientName = `${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim();
-    dashboard.showToast({
-      message: `Drucke ${patientName}`,
-      type: 'standard',
-    });
+    printPatientDetails(patient);
   };
 
   return (
