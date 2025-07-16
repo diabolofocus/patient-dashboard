@@ -268,6 +268,18 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         width: 657px !important;
         min-width: 657px !important;
     }
+
+    /* Add this to your existing styles */
+  .modal-content table {
+    max-width: 100% !important;
+    table-layout: fixed;
+    word-wrap: break-word;
+  }
+  
+  .modal-content td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   
 `}</style>
                 <Card>
@@ -275,16 +287,19 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         <TableToolbar.ItemGroup position="start">
                             <TableToolbar.Item>
                                 <Text size="medium" weight="normal">
-                                    {filteredPatients.length} von {totalPatients} Patienten
+                                    {filteredPatients.length !== totalPatients
+                                        ? `${filteredPatients.length} von ${totalPatients} Patienten`
+                                        : `${totalPatients} Patienten`
+                                    }
                                 </Text>
                             </TableToolbar.Item>
-                            {searchTerm && (
+                            {/* {searchTerm && (
                                 <TableToolbar.Item>
                                     <TableToolbar.Label>
                                         Gefiltert nach: "{searchTerm}"
                                     </TableToolbar.Label>
                                 </TableToolbar.Item>
-                            )}
+                            )} */}
                         </TableToolbar.ItemGroup>
                         <TableToolbar.ItemGroup position="end">
                             <TableToolbar.Item>
@@ -344,120 +359,136 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                 return (
                                     <Box key={patient._id} direction="vertical">
                                         {/* Main Patient Row */}
-                                        <Box
-                                            direction="horizontal"
-                                            gap="SP2"
-                                            padding="16px"
-                                            backgroundColor="#FFFFFF"
-                                            style={{
-                                                alignItems: 'center',
-                                                minHeight: '56px',
-                                                transition: 'background-color 0.15s ease',
-                                                borderBottom: (note?.notes && note.notes.trim() !== '') ? 'none' : '1px solid #EAEAEA'
-                                            }}
-                                            className="table-row-hover"
+                                        {/* Main Patient Row */}
+                                        <div
+                                            onClick={() => onViewPatient(patient)}
+                                            style={{ cursor: 'pointer' }}
                                         >
-                                            {/* Name Column */}
-                                            <Box width="220px" minWidth="220px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
-                                                <Avatar size="size24" />
-                                                <Text size="small">
-                                                    {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
-                                                </Text>
-                                            </Box>
+                                            <Box
+                                                direction="horizontal"
+                                                gap="SP2"
+                                                padding="16px"
+                                                backgroundColor="#FFFFFF"
+                                                style={{
+                                                    alignItems: 'center',
+                                                    minHeight: '56px',
+                                                    transition: 'background-color 0.15s ease',
+                                                    borderBottom: (note?.notes && note.notes.trim() !== '') ? 'none' : '1px solid #EAEAEA'
+                                                }}
+                                                className="table-row-hover"
+                                            >
+                                                {/* Name Column */}
+                                                <Box width="220px" minWidth="220px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
+                                                    <Avatar size="size24" />
+                                                    <Text size="small">
+                                                        {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
+                                                    </Text>
+                                                </Box>
 
-                                            {/* Date Column */}
-                                            <Box width="120px" minWidth="120px">
-                                                <Text size="small">
-                                                    {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
-                                                </Text>
-                                            </Box>
+                                                {/* Date Column */}
+                                                <Box width="120px" minWidth="120px">
+                                                    <Text size="small">
+                                                        {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
+                                                    </Text>
+                                                </Box>
 
-                                            {/* Age Column */}
-                                            <Box width="120px" minWidth="120px">
-                                                <Text size="small" style={{ whiteSpace: 'nowrap' }}>
-                                                    {patient.submissions.geburtsdatum
-                                                        ? calculateAge(patient.submissions.geburtsdatum)
-                                                        : 'Kein Geburtsdatum'
-                                                    }
-                                                </Text>
-                                            </Box>
+                                                {/* Age Column */}
+                                                <Box width="120px" minWidth="120px">
+                                                    <Text size="small" style={{ whiteSpace: 'nowrap' }}>
+                                                        {patient.submissions.geburtsdatum
+                                                            ? calculateAge(patient.submissions.geburtsdatum)
+                                                            : 'Kein Geburtsdatum'
+                                                        }
+                                                    </Text>
+                                                </Box>
 
-                                            {/* HB Column */}
-                                            <Box width="90px" minWidth="90px">
-                                                <Badge
-                                                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
-                                                    size="small"
-                                                >
-                                                    {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'HAUS' : 'PRAXIS'}
-                                                </Badge>
-                                            </Box>
-
-                                            {/* WV Column */}
-                                            <Box width="90px" minWidth="90px">
-                                                <Badge
-                                                    skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'neutralLight' : 'success'}
-                                                    size="small"
-                                                >
-                                                    {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neue' : 'WV'}
-                                                </Badge>
-                                            </Box>
-
-                                            {/* K/E Column */}
-                                            <Box width="90px" minWidth="90px">
-                                                {!patient.submissions.geburtsdatum ? (
-                                                    <Text>-</Text>
-                                                ) : (
+                                                {/* HB Column */}
+                                                <Box width="90px" minWidth="90px">
                                                     <Badge
-                                                        skin={age <= 18 ? 'standard' : 'premium'}
+                                                        skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
                                                         size="small"
                                                     >
-                                                        {age <= 18 ? 'Kinder' : 'Erwachsene'}
+                                                        {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'HAUS' : 'PRAXIS'}
                                                     </Badge>
-                                                )}
-                                            </Box>
+                                                </Box>
 
-                                            {/* Actions Column */}
-                                            <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end">
-                                                <PopoverMenu
-                                                    textSize="small"
-                                                    triggerElement={
-                                                        <IconButton
-                                                            skin="inverted"
+                                                {/* WV Column */}
+                                                <Box width="90px" minWidth="90px">
+                                                    <Badge
+                                                        skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'neutralLight' : 'success'}
+                                                        size="small"
+                                                    >
+                                                        {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'NA' : 'WV'}
+                                                    </Badge>
+                                                </Box>
+
+                                                {/* K/E Column */}
+                                                <Box width="90px" minWidth="90px">
+                                                    {!patient.submissions.geburtsdatum ? (
+                                                        <Text>-</Text>
+                                                    ) : (
+                                                        <Badge
+                                                            skin={age <= 18 ? 'standard' : 'premium'}
                                                             size="small"
                                                         >
-                                                            <Icons.More />
-                                                        </IconButton>
-                                                    }
-                                                    placement="top"
-                                                >
-                                                    <PopoverMenu.MenuItem
-                                                        text="Vorschau"
-                                                        onClick={() => onViewPatient(patient)}
-                                                        prefixIcon={<Icons.Visible />}
-                                                    />
-                                                    <PopoverMenu.MenuItem
-                                                        text="Drucken"
-                                                        onClick={() => onPrintPatient(patient)}
-                                                        prefixIcon={<Icons.Print />}
-                                                    />
-                                                    <PopoverMenu.MenuItem
-                                                        text="Notiz hinzufügen"
-                                                        onClick={() => console.log('Add note', patient._id)}
-                                                        prefixIcon={<Icons.Add />}
-                                                    />
-                                                    <PopoverMenu.Divider />
-                                                    <PopoverMenu.MenuItem
-                                                        text="Löschen"
-                                                        onClick={() => onDeletePatient(patient._id)}
-                                                        prefixIcon={<Icons.Delete />}
-                                                        skin="destructive"
-                                                    />
-                                                </PopoverMenu>
-                                            </Box>
-                                        </Box>
+                                                            {age <= 18 ? 'Kinder' : 'Erwachsene'}
+                                                        </Badge>
+                                                    )}
+                                                </Box>
 
-                                        {/* Note Row - Only show if note has content */}
-                                        {note?.notes && note.notes.trim() !== '' && (
+                                                {/* Actions Column */}
+                                                <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end">
+                                                    <PopoverMenu
+                                                        textSize="small"
+                                                        triggerElement={
+                                                            <IconButton
+                                                                skin="inverted"
+                                                                size="small"
+                                                            >
+                                                                <Icons.More />
+                                                            </IconButton>
+                                                        }
+                                                        placement="top"
+                                                    >
+                                                        <PopoverMenu.MenuItem
+                                                            text="Vorschau"
+                                                            onClick={() => onViewPatient(patient)}
+                                                            prefixIcon={<Icons.Visible />}
+                                                        />
+                                                        <PopoverMenu.MenuItem
+                                                            text="Drucken"
+                                                            onClick={() => onPrintPatient(patient)}
+                                                            prefixIcon={<Icons.Print />}
+                                                        />
+                                                        <PopoverMenu.MenuItem
+                                                            text="Notiz hinzufügen"
+                                                            onClick={() => {
+                                                                // Set editing mode to true
+                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
+
+                                                                // Create empty note structure if it doesn't exist
+                                                                if (!notes[patient._id]) {
+                                                                    const email = patient.submissions.email_726a?.trim() || '';
+                                                                    const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                                    loadNoteForSubmission(patient._id, email, name);
+                                                                }
+                                                            }}
+                                                            prefixIcon={<Icons.Add />}
+                                                        />
+                                                        <PopoverMenu.Divider />
+                                                        <PopoverMenu.MenuItem
+                                                            text="Löschen"
+                                                            onClick={() => onDeletePatient(patient._id)}
+                                                            prefixIcon={<Icons.Delete />}
+                                                            skin="destructive"
+                                                        />
+                                                    </PopoverMenu>
+                                                </Box>
+                                            </Box>
+                                        </div>
+
+                                        {/* Note Row - Show if note has content OR if we're editing */}
+                                        {((note?.notes && note.notes.trim() !== '') || editingNotes[patient._id]) && (
                                             <Box
                                                 padding="12px 16px 12px 16px"
                                                 backgroundColor="#fff"
@@ -581,7 +612,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
             )}
 
             {totalPages <= 1 && (
-                <Box textAlign="center" padding="16px 0">
+                <Box align="center">
                     <Text size="small">
                         Zeige alle {patients.length} Patienten
                     </Text>

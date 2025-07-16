@@ -17,7 +17,8 @@ import {
   Loader,
   Layout,
   Cell,
-  CustomModalLayout
+  MessageModalLayout,
+  Modal
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
@@ -30,7 +31,9 @@ import { StatisticsCards } from '../../components/StatisticsCards';
 import { PatientDetailsModal } from '../../components/PatientDetailsModal';
 import { printPatientDetails } from '../../utils/printUtils';
 import { useNotes } from '../../hooks/useNotes';
-import { NotesDebug } from '../../components/NotesDebug';
+
+import { submissions } from '@wix/forms';
+
 
 
 
@@ -41,6 +44,8 @@ const PatientDashboard: React.FC = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<any>(null);
 
   // Use the custom hook to fetch real patient data
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -145,7 +150,57 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handlePrintPatient = (patient: any) => {
+    console.log('Printing patient:', patient);
     printPatientDetails(patient);
+  };
+
+  const handleDeletePatient = (patientId: string) => {
+    console.log('handleDeletePatient called with ID:', patientId);
+    console.log('All submissions:', allSubmissions);
+
+    // Find the patient to show their name in the modal
+    const patient = allSubmissions.find(p => p._id === patientId);
+    console.log('Found patient:', patient);
+
+    setPatientToDelete(patient);
+    setIsDeleteModalOpen(true);
+
+    console.log('Modal state set to true');
+  };
+
+  const confirmDeletePatient = async () => {
+    if (!patientToDelete) return;
+
+    try {
+      console.log('Deleting patient with ID:', patientToDelete._id);
+
+      await submissions.deleteSubmission(patientToDelete._id, {
+        permanent: false
+      });
+      dashboard.showToast({
+        message: 'Patient erfolgreich gelöscht',
+        type: 'success',
+      });
+
+      // Close modal and refresh data
+      setIsDeleteModalOpen(false);
+      setPatientToDelete(null);
+      await loadSubmissions();
+
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+
+      // Show error message
+      dashboard.showToast({
+        message: 'Fehler beim Löschen des Patienten',
+        type: 'error',
+      });
+    }
+  };
+
+  const cancelDeletePatient = () => {
+    setIsDeleteModalOpen(false);
+    setPatientToDelete(null);
   };
 
   return (
@@ -176,10 +231,6 @@ const PatientDashboard: React.FC = () => {
         <Page.Content>
           <Layout>
             <Cell>
-              {/* Add this debug section */}
-              <Box marginBottom="SP4">
-                <NotesDebug />
-              </Box>
               {/* Statistics Cards Section - Full Width */}
               <Box marginBottom="SP4">
                 <StatisticsCards
@@ -200,7 +251,7 @@ const PatientDashboard: React.FC = () => {
                     patients={filteredSubmissions}
                     onViewPatient={handleViewPatient}
                     onPrintPatient={handlePrintPatient}
-                    onDeletePatient={(id) => console.log('Delete', id)}
+                    onDeletePatient={handleDeletePatient}
                     onUpdatePatientStatus={(id, status) => console.log('Update status', id, status)}
                     searchTerm={filters.searchTerm}
                     onSearchChange={(value) => updateFilter('searchTerm', value)}
@@ -230,6 +281,31 @@ const PatientDashboard: React.FC = () => {
           onClose={handleCloseModal}
           onPrint={handlePrintPatient}
         />
+      )}
+
+      {isDeleteModalOpen && patientToDelete && (
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onRequestClose={cancelDeletePatient}
+          shouldCloseOnOverlayClick={true}
+          screen="desktop"
+        >
+          <MessageModalLayout
+            theme="destructive"
+            onCloseButtonClick={cancelDeletePatient}
+            primaryButtonText="Löschen"
+            secondaryButtonText="Abbrechen"
+            primaryButtonOnClick={confirmDeletePatient}
+            secondaryButtonOnClick={cancelDeletePatient}
+            title="Patient löschen"
+            content={
+              <Text>
+                Sie sind dabei, den Patienten <b>{`${patientToDelete.submissions.vorname || ''} ${patientToDelete.submissions.name_1 || ''}`.trim()}</b> zu löschen.
+                Sie können diesen Patienten später immer noch aus der Bin-Sammlung wiederherstellen.
+              </Text>
+            }
+          />
+        </Modal>
       )}
     </WixDesignSystemProvider>
   );

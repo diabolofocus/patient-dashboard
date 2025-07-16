@@ -104,8 +104,15 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                                     textAlign: 'center',
                                     fontSize: '12px'
                                 }}>
-                                    {day.data.some(slot => slot.includes(timeSlot.replace('-', '-'))) ? 'X' : ''}
-                                </td>
+                                    {day.data.some(slot => {
+                                        // Check for exact match or variations without leading zeros
+                                        const normalizedSlot = slot.trim();
+                                        const normalizedTimeSlot = timeSlot.replace(/^0+/, '').replace('-0', '-');
+                                        return normalizedSlot.includes(timeSlot) ||
+                                            normalizedSlot.includes(normalizedTimeSlot) ||
+                                            normalizedSlot === timeSlot ||
+                                            normalizedSlot === normalizedTimeSlot;
+                                    }) ? 'X' : ''}                                </td>
                             ))}
                         </tr>
                     ))}
@@ -147,6 +154,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 <Box
                     height="calc(100vh - 100px)"
                     backgroundColor="#f0f0f0"
+                    maxWidth="900px"
                     borderRadius="8px"
                     direction="vertical"
                     padding="SP4"
@@ -154,16 +162,22 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                     {/* Scrollable Content Area */}
                     <Box
                         direction="vertical"
+
                         style={{
                             flex: 1,
                             overflow: 'auto',
-                            padding: '20px'
+                            padding: '20px',
+                            maxWidth: '900px',
+                            width: '100%',
+                            boxSizing: 'border-box'
                         }}
                     >
                         {/* A4 Card */}
                         <Box
+                            className="modal-content"
                             style={{
                                 width: '210mm',
+                                maxWidth: '800px',
                                 minHeight: '297mm',
                                 backgroundColor: 'white',
                                 padding: '30px',
@@ -173,7 +187,8 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                                 marginTop: '200px',
                                 marginBottom: '40px',
                                 marginLeft: 'auto',
-                                marginRight: 'auto'
+                                marginRight: 'auto',
+                                boxSizing: 'border-box'
                             }}
                             direction="vertical"
                             padding="SP4"
