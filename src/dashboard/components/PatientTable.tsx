@@ -17,7 +17,9 @@ import {
     TableToolbar,
     TableActionCell,
     Input,
-    IconButton
+    IconButton,
+    TableListHeader,
+    TextButton
 } from '@wix/design-system';
 import * as Icons from '@wix/wix-ui-icons-common';
 import { PatientSubmission } from '../types';
@@ -52,29 +54,12 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [sortField, setSortField] = useState<string>('date');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [expandedNotes, setExpandedNotes] = useState<{ [key: string]: boolean }>({});
+    const [editingNotes, setEditingNotes] = useState<{ [submissionId: string]: boolean }>({});
 
-
-
-    const handleNoteChange = (submissionId: string, noteText: string) => {
-        updateNoteText(submissionId, noteText);
-        const patient = patients.find(p => p._id === submissionId);
-        if (patient) {
-            const email = patient.submissions.email_726a?.trim() || '';
-            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
-            saveNote(submissionId, email, name, noteText);
-        }
-    };
-
-    const toggleNoteExpansion = (submissionId: string) => {
-        setExpandedNotes(prev => ({
-            ...prev,
-            [submissionId]: !prev[submissionId]
-        }));
-    };
 
     // Use the notes hook
     const { notes, loadingNotes, loadNoteForSubmission, saveNote, updateNoteText } = useNotes();
+
     // Filter patients based on search term
     const filteredPatients = patients.filter(patient => {
         if (!searchTerm) return true;
@@ -133,234 +118,52 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         }
     };
 
-    const columns = [
+    // Handle sort change from TableListHeader
+    const handleSortChange = (colNum: number) => {
+        // Only column 1 (Date) is sortable
+        if (colNum === 1) {
+            handleSort('date');
+        }
+    };
+
+    const headerOptions = [
         {
-            title: 'Name',
-            width: '30%',
-            minWidth: '200px',
-            render: (patient: PatientSubmission) => {
-                const note = notes[patient._id];
-                const isExpanded = expandedNotes[patient._id];
-                const hasNote = note && note.notes && note.notes.trim() !== '';
-                const showNoteInput = hasNote || isExpanded;
+            value: '\u00A0\u00A0\u00A0\u00A0Name', // Non-breaking spaces to align with avatar
+            width: '236px', // 220px + 16px gap compensation
+            align: 'left' as const,
 
-                return (
-                    <Box direction="horizontal" gap="SP2" style={{ alignItems: 'flex-start' }}>
-                        <Avatar size="size24" />
-                        <Box direction="vertical" gap="SP1" style={{ flex: 1 }}>
-                            <Text size="small">
-                                {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
-                            </Text>
-
-                            {/* Show existing note as text */}
-                            {hasNote && !isExpanded && (
-                                <Box
-                                    style={{
-                                        padding: '4px 8px',
-                                        backgroundColor: '#F3F4F6',
-                                        borderRadius: '4px',
-                                        fontSize: '12px',
-                                        position: 'relative'
-                                    }}
-                                >
-                                    <IconButton
-                                        skin="inverted"
-                                        size="tiny"
-                                        onClick={() => toggleNoteExpansion(patient._id)}
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: 'transparent',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <div style={{ opacity: 0 }}>edit</div>
-                                    </IconButton>
-                                    <Text size="tiny" secondary>
-                                        {note.notes}
-                                    </Text>
-                                </Box>
-                            )}
-
-                            {/* Show input when editing or adding new note */}
-                            {showNoteInput && isExpanded && (
-                                <Box style={{ width: '100%', maxWidth: '250px' }}>
-                                    <Input
-                                        placeholder="Notiz hinzufügen..."
-                                        value={note?.notes || ''}
-                                        onChange={(e) => handleNoteChange(patient._id, e.target.value)}
-                                        size="small"
-                                        status={loadingNotes[patient._id] ? 'loading' : undefined}
-                                        onBlur={() => {
-                                            // Close input if note is empty
-                                            if (!note?.notes?.trim()) {
-                                                toggleNoteExpansion(patient._id);
-                                            }
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                toggleNoteExpansion(patient._id);
-                                            }
-                                            if (e.key === 'Escape') {
-                                                toggleNoteExpansion(patient._id);
-                                            }
-                                        }}
-                                    />
-                                </Box>
-                            )}
-
-                            {/* Show add note button when no note exists and not expanded */}
-                            {!hasNote && !isExpanded && (
-                                <Box>
-                                    <Button
-                                        skin="light"
-                                        size="tiny"
-                                        onClick={() => toggleNoteExpansion(patient._id)}
-                                        prefixIcon={<Icons.Add />}
-                                    >
-                                        Notiz
-                                    </Button>
-                                </Box>
-                            )}
-                        </Box>
-                    </Box>
-                );
-            },
         },
         {
-            title: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
-            width: '15%',
-            minWidth: '120px',
-            render: (patient: PatientSubmission) => (
-                <Text size="small">
-                    {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
-                </Text>
-            ),
+            value: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
+            width: '136px', // 120px + 16px gap compensation
+            align: 'left' as const,
             sortable: true,
             sortDescending: sortField === 'date' ? sortOrder === 'desc' : undefined,
-            onSortClick: () => handleSort('date'),
         },
         {
-            title: 'Alter',
-            width: '15%',
-            minWidth: '300px',
-            render: (patient: PatientSubmission) => (
-                <Text size="small" style={{ whiteSpace: 'nowrap' }}>
-                    {patient.submissions.geburtsdatum
-                        ? calculateAge(patient.submissions.geburtsdatum)
-                        : 'Kein Geburtsdatum'
-                    }
-                </Text>
-            ),
+            value: 'Alter',
+            width: '136px', // 120px + 16px gap compensation
+            align: 'left' as const,
         },
         {
-            title: (
-                <Box direction="horizontal" gap="SP1" align="center">
-                    <Text>HB</Text>
-                </Box>
-            ),
-            width: '8%',
-            minWidth: '80px',
-            render: (patient: PatientSubmission) => (
-                <Badge
-                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
-                    size="small"
-                >
-                    {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'Ja' : 'Nein'}
-                </Badge>
-            ),
+            value: 'Ort',
+            width: '100px', // 70px + 16px gap compensation
+            align: 'left' as const,
         },
         {
-            title: (
-                <Box direction="horizontal" gap="SP1" align="center">
-                    <Text>WV</Text>
-                </Box>
-            ),
-            width: '8%',
-            minWidth: '100px',
-            render: (patient: PatientSubmission) => (
-                <Badge
-                    skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'success' : 'standard'}
-                    size="small"
-                >
-                    {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neu' : 'WV'}
-                </Badge>
-            ),
+            value: 'WV',
+            width: '100px', // 70px + 16px gap compensation
+            align: 'left' as const,
         },
         {
-            title: 'K/E',
-            width: '10%',
-            minWidth: '140px',
-            render: (patient: PatientSubmission) => {
-                if (!patient.submissions.geburtsdatum) return <Text>-</Text>;
-
-                const today = new Date();
-                const birth = new Date(patient.submissions.geburtsdatum);
-                let age = today.getFullYear() - birth.getFullYear();
-                const monthDiff = today.getMonth() - birth.getMonth();
-
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                    age--;
-                }
-
-                return (
-                    <Badge
-                        skin={age <= 18 ? 'standard' : 'premium'}
-                        size="small"
-                    >
-                        {age <= 18 ? 'Kinder' : 'Erwachsene'}
-                    </Badge>
-                );
-            },
+            value: 'K/E',
+            width: '106px', // 70px + 16px gap compensation
+            align: 'left' as const,
         },
-
         {
-            title: '',
-            width: '120px',
-            render: (patient: PatientSubmission) => {
-                const note = notes[patient._id];
-                const hasNote = note && note.notes && note.notes.trim() !== '';
-
-                return (
-                    <TableActionCell
-                        secondaryActions={[
-                            {
-                                text: 'Vorschau',
-                                icon: <Icons.Visible />,
-                                onClick: () => {
-                                    console.log('Vorschau clicked', patient);
-                                    onViewPatient(patient);
-                                }
-                            },
-                            {
-                                text: 'Drucken',
-                                icon: <Icons.Print />,
-                                onClick: () => onPrintPatient(patient)
-                            },
-                            {
-                                text: hasNote ? 'Notiz bearbeiten' : 'Notiz hinzufügen',
-                                icon: hasNote ? <Icons.Edit /> : <Icons.Add />,
-                                onClick: () => toggleNoteExpansion(patient._id)
-                            },
-                            {
-                                text: 'Bearbeiten',
-                                icon: <Icons.Edit />,
-                                onClick: () => console.log('Edit', patient._id)
-                            },
-                            {
-                                text: 'Löschen',
-                                icon: <Icons.Delete />,
-                                onClick: () => onDeletePatient(patient._id),
-                                skin: 'destructive'
-                            }
-                        ]}
-                        numOfVisibleSecondaryActions={0}
-                    />
-                );
-            },
+            value: '',
+            width: '116px', // 60px + 16px gap compensation
+            align: 'left' as const,
         },
     ];
 
@@ -372,7 +175,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         );
     }
 
-    // Load notes for visible patients
+    // Load notes for visible patients (this should still be there)
     useEffect(() => {
         currentPatients.forEach(patient => {
             const email = patient.submissions.email_726a?.trim() || '';
@@ -389,71 +192,365 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     border: '1px solid #e0e0e0',
                     borderRadius: '8px',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    overflowX: 'auto',
+                    minWidth: '100%'
                 }}
             >
                 <style>{`
-                    .patient-table-container table tbody tr {
-                        transition: background-color 0.15s ease;
-                    }
-                    .patient-table-container table tbody tr:hover {
-                        background-color: rgba(59, 130, 246, 0.08) !important;
-                    }
-                    .patient-table-container table tbody tr:hover td {
-                        background-color: transparent !important;
-                    }
-                    
-                    .table-row-hover:hover {
-                        background-color: rgba(59, 130, 246, 0.08) !important;
-                    }
-                    
-                    /* Ensure table has a minimum width */
-                    table { min-width: 900px !important; }
-                `}</style>
-                <Box>
-                    <Table
-                        data={currentPatients}
-                        columns={columns}
-                        onSortClick={(column) => {
-                            handleSort('date');
+    .patient-table-container table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+    .patient-table-container table tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.08) !important;
+    }
+    .patient-table-container table tbody tr:hover td {
+        background-color: transparent !important;
+    }
+    
+    .table-row-hover:hover {
+        background-color: rgba(59, 130, 246, 0.08) !important;
+    }
+    
+    /* Force TableListHeader to full width and proper alignment */
+    [data-hook="table-list-header"] {
+        width: 100% !important;
+        min-width: 100% !important;
+        display: flex !important;
+        padding: 12px 16px !important;
+        box-sizing: border-box !important;
+    }
+    
+    [data-hook="table-list-header"] > div {
+        display: flex !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure proper column spacing */
+    [data-hook="table-list-header"] [data-hook="table-list-header-cell"] {
+        margin-right: 16px !important;
+    }
+    
+    [data-hook="table-list-header"] [data-hook="table-list-header-cell"]:last-child {
+        margin-right: 0 !important;
+    }
+    
+    /* Horizontal scroll styling */
+    .table-container {
+        overflow-x: auto;
+        min-width: 100%;
+    }
+    
+    /* Ensure table has a minimum width */
+    table { min-width: 1000px !important; }
+    
+    /* Custom scrollbar styling */
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+  
+    
+    .note-input-container input {
+        width: 657px !important;
+        min-width: 657px !important;
+    }
+  
+`}</style>
+                <Card>
+                    <TableToolbar>
+                        <TableToolbar.ItemGroup position="start">
+                            <TableToolbar.Item>
+                                <Text size="medium" weight="normal">
+                                    {filteredPatients.length} von {totalPatients} Patienten
+                                </Text>
+                            </TableToolbar.Item>
+                            {searchTerm && (
+                                <TableToolbar.Item>
+                                    <TableToolbar.Label>
+                                        Gefiltert nach: "{searchTerm}"
+                                    </TableToolbar.Label>
+                                </TableToolbar.Item>
+                            )}
+                        </TableToolbar.ItemGroup>
+                        <TableToolbar.ItemGroup position="end">
+                            <TableToolbar.Item>
+                                <Box width="300">
+                                    <Search
+                                        value={searchTerm}
+                                        onChange={(e) => onSearchChange(e.target.value)}
+                                        placeholder="Nach Namen suchen..."
+                                        size="small"
+                                    />
+                                </Box>
+                            </TableToolbar.Item>
+                        </TableToolbar.ItemGroup>
+                    </TableToolbar>
+
+                    {/* Custom table structure with expandable note rows */}
+                    <Box
+                        direction="vertical"
+                        style={{
+                            overflowX: 'auto',
+                            minWidth: '730px' // Updated minimum width for all columns
                         }}
-                        withWrapper={false}
                     >
-                        <Card>
-                            <TableToolbar>
-                                <TableToolbar.ItemGroup position="start">
-                                    <TableToolbar.Item>
-                                        <Text size="medium" weight="normal">
-                                            {filteredPatients.length} von {totalPatients} Patienten
-                                        </Text>
-                                    </TableToolbar.Item>
-                                    {searchTerm && (
-                                        <TableToolbar.Item>
-                                            <TableToolbar.Label>
-                                                Gefiltert nach: "{searchTerm}"
-                                            </TableToolbar.Label>
-                                        </TableToolbar.Item>
-                                    )}
-                                </TableToolbar.ItemGroup>
-                                <TableToolbar.ItemGroup position="end">
-                                    <TableToolbar.Item>
-                                        <Box width="300">
-                                            <Search
-                                                value={searchTerm}
-                                                onChange={(e) => onSearchChange(e.target.value)}
-                                                placeholder="Nach Namen suchen..."
-                                                size="small"
-                                            />
+                        {/* Table Header using TableListHeader */}
+                        <Box
+                            style={{
+                                width: '100%',
+                                minWidth: '730px'
+                            }}
+                        >
+                            <TableListHeader
+                                options={headerOptions}
+                                onSortChange={handleSortChange}
+                                checkboxState="hidden"
+                            />
+                        </Box>
+
+                        {/* Table Rows */}
+                        <Box direction="vertical">
+                            {currentPatients.map((patient, index) => {
+                                const note = notes[patient._id];
+
+                                const hasNote = note && note.notes && note.notes.trim() !== '';
+
+                                // Calculate age
+                                let age = 0;
+                                if (patient.submissions.geburtsdatum) {
+                                    const today = new Date();
+                                    const birth = new Date(patient.submissions.geburtsdatum);
+                                    age = today.getFullYear() - birth.getFullYear();
+                                    const monthDiff = today.getMonth() - birth.getMonth();
+                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                                        age--;
+                                    }
+                                }
+
+                                return (
+                                    <Box key={patient._id} direction="vertical">
+                                        {/* Main Patient Row */}
+                                        <Box
+                                            direction="horizontal"
+                                            gap="SP2"
+                                            padding="16px"
+                                            backgroundColor="#FFFFFF"
+                                            style={{
+                                                alignItems: 'center',
+                                                minHeight: '56px',
+                                                transition: 'background-color 0.15s ease',
+                                                borderBottom: (note?.notes && note.notes.trim() !== '') ? 'none' : '1px solid #EAEAEA'
+                                            }}
+                                            className="table-row-hover"
+                                        >
+                                            {/* Name Column */}
+                                            <Box width="220px" minWidth="220px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
+                                                <Avatar size="size24" />
+                                                <Text size="small">
+                                                    {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
+                                                </Text>
+                                            </Box>
+
+                                            {/* Date Column */}
+                                            <Box width="120px" minWidth="120px">
+                                                <Text size="small">
+                                                    {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
+                                                </Text>
+                                            </Box>
+
+                                            {/* Age Column */}
+                                            <Box width="120px" minWidth="120px">
+                                                <Text size="small" style={{ whiteSpace: 'nowrap' }}>
+                                                    {patient.submissions.geburtsdatum
+                                                        ? calculateAge(patient.submissions.geburtsdatum)
+                                                        : 'Kein Geburtsdatum'
+                                                    }
+                                                </Text>
+                                            </Box>
+
+                                            {/* HB Column */}
+                                            <Box width="90px" minWidth="90px">
+                                                <Badge
+                                                    skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
+                                                    size="small"
+                                                >
+                                                    {patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'HAUS' : 'PRAXIS'}
+                                                </Badge>
+                                            </Box>
+
+                                            {/* WV Column */}
+                                            <Box width="90px" minWidth="90px">
+                                                <Badge
+                                                    skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'neutralLight' : 'success'}
+                                                    size="small"
+                                                >
+                                                    {patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'Neue' : 'WV'}
+                                                </Badge>
+                                            </Box>
+
+                                            {/* K/E Column */}
+                                            <Box width="90px" minWidth="90px">
+                                                {!patient.submissions.geburtsdatum ? (
+                                                    <Text>-</Text>
+                                                ) : (
+                                                    <Badge
+                                                        skin={age <= 18 ? 'standard' : 'premium'}
+                                                        size="small"
+                                                    >
+                                                        {age <= 18 ? 'Kinder' : 'Erwachsene'}
+                                                    </Badge>
+                                                )}
+                                            </Box>
+
+                                            {/* Actions Column */}
+                                            <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end">
+                                                <PopoverMenu
+                                                    textSize="small"
+                                                    triggerElement={
+                                                        <IconButton
+                                                            skin="inverted"
+                                                            size="small"
+                                                        >
+                                                            <Icons.More />
+                                                        </IconButton>
+                                                    }
+                                                    placement="top"
+                                                >
+                                                    <PopoverMenu.MenuItem
+                                                        text="Vorschau"
+                                                        onClick={() => onViewPatient(patient)}
+                                                        prefixIcon={<Icons.Visible />}
+                                                    />
+                                                    <PopoverMenu.MenuItem
+                                                        text="Drucken"
+                                                        onClick={() => onPrintPatient(patient)}
+                                                        prefixIcon={<Icons.Print />}
+                                                    />
+                                                    <PopoverMenu.MenuItem
+                                                        text="Notiz hinzufügen"
+                                                        onClick={() => console.log('Add note', patient._id)}
+                                                        prefixIcon={<Icons.Add />}
+                                                    />
+                                                    <PopoverMenu.Divider />
+                                                    <PopoverMenu.MenuItem
+                                                        text="Löschen"
+                                                        onClick={() => onDeletePatient(patient._id)}
+                                                        prefixIcon={<Icons.Delete />}
+                                                        skin="destructive"
+                                                    />
+                                                </PopoverMenu>
+                                            </Box>
                                         </Box>
-                                    </TableToolbar.Item>
-                                </TableToolbar.ItemGroup>
-                            </TableToolbar>
-                            <Box style={{ flex: 1, overflow: 'visible' }}>
-                                <Table.Content />
-                            </Box>
-                        </Card>
-                    </Table>
-                </Box>
+
+                                        {/* Note Row - Only show if note has content */}
+                                        {note?.notes && note.notes.trim() !== '' && (
+                                            <Box
+                                                padding="12px 16px 12px 16px"
+                                                backgroundColor="#fff"
+                                                borderBottom="1px solid #EAEAEA"
+                                                style={{
+                                                    borderTop: '1px dashed #CCCCCC'
+                                                }}
+                                            >
+                                                <Box className="note-input-container">
+                                                    <Input
+                                                        prefix={
+                                                            <Input.IconAffix>
+                                                                <Icons.Comment />
+                                                            </Input.IconAffix>
+                                                        }
+                                                        suffix={
+                                                            <Input.IconAffix>
+                                                                {editingNotes[patient._id] ? (
+                                                                    <Box direction="horizontal" gap="SP1">
+                                                                        <TextButton
+                                                                            size="tiny"
+                                                                            skin="destructive"
+                                                                            onClick={() => {
+                                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                                // Reset the note text to original value
+                                                                                const email = patient.submissions.email_726a?.trim() || '';
+                                                                                const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                                                loadNoteForSubmission(patient._id, email, name);
+                                                                            }}
+                                                                        >
+                                                                            Abbrechen
+                                                                        </TextButton>
+                                                                        <TextButton
+                                                                            size="tiny"
+                                                                            onClick={async () => {
+                                                                                const success = await saveNote(patient._id, note.notes);
+                                                                                if (success) {
+                                                                                    setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                                }
+                                                                            }}
+                                                                            disabled={loadingNotes[patient._id]}
+                                                                        >
+                                                                            {loadingNotes[patient._id] ? 'Speichern...' : 'Speichern'}
+                                                                        </TextButton>
+
+                                                                    </Box>
+                                                                ) : (
+                                                                    <TextButton
+                                                                        size="tiny"
+                                                                        onClick={() => {
+                                                                            setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
+                                                                        }}
+                                                                    >
+                                                                        Bearbeiten
+                                                                    </TextButton>
+                                                                )}
+                                                            </Input.IconAffix>
+                                                        }
+                                                        value={note.notes}
+                                                        readOnly={!editingNotes[patient._id]}
+                                                        size="small"
+                                                        onChange={(e) => {
+                                                            if (editingNotes[patient._id]) {
+                                                                updateNoteText(patient._id, e.target.value);
+                                                            }
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' && editingNotes[patient._id]) {
+                                                                // Save on Enter
+                                                                saveNote(patient._id, note.notes).then((success) => {
+                                                                    if (success) {
+                                                                        setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                    }
+                                                                });
+                                                            }
+                                                            if (e.key === 'Escape' && editingNotes[patient._id]) {
+                                                                // Cancel on Escape
+                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                const email = patient.submissions.email_726a?.trim() || '';
+                                                                const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                                loadNoteForSubmission(patient._id, email, name);
+                                                            }
+                                                        }}
+                                                    />
+                                                </Box>
+                                            </Box>
+                                        )}
+                                    </Box>
+                                );
+                            })}
+                        </Box>
+                    </Box>
+                </Card>
             </Box>
 
             {totalPages > 1 && (

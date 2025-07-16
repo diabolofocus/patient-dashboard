@@ -8,7 +8,9 @@
     "@wix/design-system": "^1.204.1",
     "@wix/forms": "^1.0.259",
     "@wix/sdk": "^1.15.24",
+    "@wix/web-methods": "^1.0.6",
     "@wix/wix-ui-icons-common": "^3.77.1",
+    "immutable": "^5.1.3",
     "recharts": "^3.1.0"
   },
   "devDependencies": {

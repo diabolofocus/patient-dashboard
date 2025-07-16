@@ -30,6 +30,8 @@ import { StatisticsCards } from '../../components/StatisticsCards';
 import { PatientDetailsModal } from '../../components/PatientDetailsModal';
 import { printPatientDetails } from '../../utils/printUtils';
 import { useNotes } from '../../hooks/useNotes';
+import { NotesDebug } from '../../components/NotesDebug';
+
 
 
 
@@ -174,6 +176,10 @@ const PatientDashboard: React.FC = () => {
         <Page.Content>
           <Layout>
             <Cell>
+              {/* Add this debug section */}
+              <Box marginBottom="SP4">
+                <NotesDebug />
+              </Box>
               {/* Statistics Cards Section - Full Width */}
               <Box marginBottom="SP4">
                 <StatisticsCards
