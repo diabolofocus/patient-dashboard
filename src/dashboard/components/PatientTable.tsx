@@ -438,51 +438,54 @@ export const PatientTable: React.FC<PatientTableProps> = ({
 
                                                 {/* Actions Column */}
                                                 <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end">
-                                                    <PopoverMenu
-                                                        textSize="small"
-                                                        triggerElement={
-                                                            <IconButton
-                                                                skin="inverted"
-                                                                size="small"
-                                                            >
-                                                                <Icons.More />
-                                                            </IconButton>
-                                                        }
-                                                        placement="top"
-                                                    >
-                                                        <PopoverMenu.MenuItem
-                                                            text="Vorschau"
-                                                            onClick={() => onViewPatient(patient)}
-                                                            prefixIcon={<Icons.Visible />}
-                                                        />
-                                                        <PopoverMenu.MenuItem
-                                                            text="Drucken"
-                                                            onClick={() => onPrintPatient(patient)}
-                                                            prefixIcon={<Icons.Print />}
-                                                        />
-                                                        <PopoverMenu.MenuItem
-                                                            text="Notiz hinzufügen"
-                                                            onClick={() => {
-                                                                // Set editing mode to true
-                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
+                                                    <div onClick={(e) => e.stopPropagation()}>
+                                                        <PopoverMenu
+                                                            textSize="small"
+                                                            triggerElement={
+                                                                <IconButton
+                                                                    skin="inverted"
+                                                                    size="small"
+                                                                >
+                                                                    <Icons.More />
+                                                                </IconButton>
+                                                            }
+                                                            placement="top"
+                                                        >
+                                                            <PopoverMenu.MenuItem
+                                                                text="Vorschau"
+                                                                onClick={() => onViewPatient(patient)}
+                                                                prefixIcon={<Icons.Visible />}
+                                                            />
+                                                            <PopoverMenu.MenuItem
+                                                                text="Drucken"
+                                                                onClick={() => onPrintPatient(patient)}
+                                                                prefixIcon={<Icons.Print />}
+                                                            />
+                                                            <PopoverMenu.MenuItem
+                                                                text="Notiz hinzufügen"
+                                                                onClick={() => {
+                                                                    // Set editing mode to true
+                                                                    setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
 
-                                                                // Create empty note structure if it doesn't exist
-                                                                if (!notes[patient._id]) {
-                                                                    const email = patient.submissions.email_726a?.trim() || '';
-                                                                    const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
-                                                                    loadNoteForSubmission(patient._id, email, name);
-                                                                }
-                                                            }}
-                                                            prefixIcon={<Icons.Add />}
-                                                        />
-                                                        <PopoverMenu.Divider />
-                                                        <PopoverMenu.MenuItem
-                                                            text="Löschen"
-                                                            onClick={() => onDeletePatient(patient._id)}
-                                                            prefixIcon={<Icons.Delete />}
-                                                            skin="destructive"
-                                                        />
-                                                    </PopoverMenu>
+                                                                    // Create empty note structure if it doesn't exist
+                                                                    if (!notes[patient._id]) {
+                                                                        const email = patient.submissions.email_726a?.trim() || '';
+                                                                        const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                                        loadNoteForSubmission(patient._id, email, name);
+                                                                    }
+                                                                }}
+                                                                prefixIcon={<Icons.Add />}
+                                                            />
+                                                            <PopoverMenu.Divider />
+                                                            <PopoverMenu.MenuItem
+                                                                text="Löschen"
+                                                                onClick={() => onDeletePatient(patient._id)}
+                                                                prefixIcon={<Icons.Delete />}
+                                                                skin="destructive"
+                                                            />
+
+                                                        </PopoverMenu>
+                                                    </div>
                                                 </Box>
                                             </Box>
                                         </div>
