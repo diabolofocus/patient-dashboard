@@ -31,6 +31,8 @@ import { StatisticsCards } from '../../components/StatisticsCards';
 import { PatientDetailsModal } from '../../components/PatientDetailsModal';
 import { printPatientDetails } from '../../utils/printUtils';
 import { useNotes } from '../../hooks/useNotes';
+import { EditSubmissionModal } from '../../components/EditSubmissionModal';
+
 
 import { submissions } from '@wix/forms';
 
@@ -46,6 +48,8 @@ const PatientDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [patientToEdit, setPatientToEdit] = useState<any>(null);
 
   // Use the custom hook to fetch real patient data
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -154,6 +158,22 @@ const PatientDashboard: React.FC = () => {
     printPatientDetails(patient);
   };
 
+  const handleEditPatient = (patient: any) => {
+    console.log('Editing patient:', patient);
+    setPatientToEdit(patient);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setPatientToEdit(null);
+  };
+
+  const handleSaveEdit = async () => {
+    // Refresh the data after successful save
+    await loadSubmissions();
+  };
+
   const handleDeletePatient = (patientId: string) => {
     console.log('handleDeletePatient called with ID:', patientId);
     console.log('All submissions:', allSubmissions);
@@ -252,6 +272,7 @@ const PatientDashboard: React.FC = () => {
                     onViewPatient={handleViewPatient}
                     onPrintPatient={handlePrintPatient}
                     onDeletePatient={handleDeletePatient}
+                    onEditPatient={handleEditPatient}
                     onUpdatePatientStatus={(id, status) => console.log('Update status', id, status)}
                     searchTerm={filters.searchTerm}
                     onSearchChange={(value) => updateFilter('searchTerm', value)}
@@ -306,6 +327,15 @@ const PatientDashboard: React.FC = () => {
             }
           />
         </Modal>
+      )}
+
+      {isEditModalOpen && patientToEdit && (
+        <EditSubmissionModal
+          patient={patientToEdit}
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveEdit}
+        />
       )}
     </WixDesignSystemProvider>
   );

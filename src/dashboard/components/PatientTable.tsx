@@ -33,6 +33,7 @@ interface PatientTableProps {
     onViewPatient: (patient: PatientSubmission) => void;
     onPrintPatient: (patient: PatientSubmission) => void;
     onDeletePatient: (patientId: string) => void;
+    onEditPatient: (patient: PatientSubmission) => void;
     onUpdatePatientStatus: (patientId: string, status: string) => void;
     searchTerm: string;
     onSearchChange: (value: string) => void;
@@ -46,6 +47,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     onViewPatient,
     onPrintPatient,
     onDeletePatient,
+    onEditPatient,
     onUpdatePatientStatus,
     searchTerm,
     onSearchChange,
@@ -129,7 +131,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     const headerOptions = [
         {
             value: '\u00A0\u00A0\u00A0\u00A0Name', // Non-breaking spaces to align with avatar
-            width: '236px', // 220px + 16px gap compensation
+            width: '256px', // 220px + 16px gap compensation
             align: 'left' as const,
 
         },
@@ -162,7 +164,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
         {
             value: '',
-            width: '116px', // 60px + 16px gap compensation
+            width: '96px', // 60px + 16px gap compensation
             align: 'left' as const,
         },
     ];
@@ -265,21 +267,37 @@ export const PatientTable: React.FC<PatientTableProps> = ({
   
     
     .note-input-container input {
-        width: 657px !important;
-        min-width: 657px !important;
+        width: 677px !important;
+        min-width: 677px !important;
+    }
+
+    /* Make actions column sticky */
+    .actions-column {
+        position: sticky !important;
+        right: 20px !important;
+
+        z-index: 1 !important;
+    }
+    
+    /* Ensure sticky header works with horizontal scroll */
+    [data-hook="table-list-header"] {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: white;
     }
 
     /* Add this to your existing styles */
-  .modal-content table {
-    max-width: 100% !important;
-    table-layout: fixed;
-    word-wrap: break-word;
-  }
-  
-  .modal-content td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+    .modal-content table {
+        max-width: 100% !important;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+    
+    .modal-content td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
   
 `}</style>
                 <Card>
@@ -378,7 +396,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 className="table-row-hover"
                                             >
                                                 {/* Name Column */}
-                                                <Box width="220px" minWidth="220px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
+                                                <Box width="240px" minWidth="240px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
                                                     <Avatar size="size24" />
                                                     <Text size="small">
                                                         {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
@@ -437,7 +455,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* Actions Column */}
-                                                <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end">
+                                                <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end" className="actions-column">
                                                     <div onClick={(e) => e.stopPropagation()}>
                                                         <PopoverMenu
                                                             textSize="small"
@@ -475,6 +493,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                                     }
                                                                 }}
                                                                 prefixIcon={<Icons.Add />}
+                                                            />
+                                                            <PopoverMenu.MenuItem
+                                                                text="Bearbeiten"
+                                                                onClick={() => onEditPatient(patient)}
+                                                                prefixIcon={<Icons.Edit />}
                                                             />
                                                             <PopoverMenu.Divider />
                                                             <PopoverMenu.MenuItem

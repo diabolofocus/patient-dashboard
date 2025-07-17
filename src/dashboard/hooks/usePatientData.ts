@@ -34,10 +34,26 @@ export const usePatientData = () => {
                 const results = await query.find();
 
                 if (results.items.length > 0) {
+                    // Add debug logging for the first item
+                    if (allData.length === 0) {
+                        console.log('=== DEBUG: First submission item from API ===');
+                        console.log('Raw item:', results.items[0]);
+                        console.log('FormId:', results.items[0].formId);
+                        console.log('Revision:', results.items[0].revision);
+                        console.log('Status:', results.items[0].status);
+                    }
+
                     // Type assertion to match our interface
                     const typedItems = results.items.map(item => ({
                         _id: item._id || '',
                         _createdDate: item._createdDate || '',
+                        _updatedDate: item._updatedDate || '',
+                        formId: item.formId || '',
+                        namespace: item.namespace || '',
+                        status: item.status || '',
+                        revision: item.revision || '',
+                        seen: item.seen || false,
+                        submitter: item.submitter || {},
                         submissions: item.submissions || {}
                     })) as PatientSubmission[];
 

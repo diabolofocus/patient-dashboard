@@ -111,7 +111,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
                 <Box direction="vertical" gap="SP4" minWidth="230px">
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="normal">Tag</Text>
+                        <Text size="medium" >Tag</Text>
                         <Dropdown
                             placeholder="Wähle einen Tag"
                             options={dayOptions}
@@ -121,7 +121,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="normal">Zeitfenster</Text>
+                        <Text size="medium" >Zeitfenster</Text>
                         <Box direction="vertical" gap="SP1">
                             {timeSlotOptions.map((option) => (
                                 <Checkbox
@@ -136,7 +136,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="normal">Hausbesuch</Text>
+                        <Text size="medium" >Hausbesuch</Text>
                         <Box direction="vertical" gap="SP1">
                             {homeVisitOptions.map((option) => (
                                 <Checkbox
@@ -151,7 +151,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" weight="normal">Altersgruppe</Text>
+                        <Text size="medium" >Altersgruppe</Text>
                         <Box direction="vertical" gap="SP1">
                             {ageGroupOptions.map((option) => (
                                 <Checkbox

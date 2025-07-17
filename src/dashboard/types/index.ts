@@ -4,6 +4,18 @@
 export interface PatientSubmission {
     _id: string;
     _createdDate: string;
+    _updatedDate?: string;
+    formId: string;
+    namespace: string;
+    status: string;
+    revision: string;
+    seen?: boolean;
+    submitter?: {
+        applicationId?: string;
+        memberId?: string;
+        visitorId?: string;
+        userId?: string;
+    };
     submissions: {
         name_1?: string;
         vorname?: string;
@@ -11,7 +23,7 @@ export interface PatientSubmission {
         geburtsdatum?: string;
         geschlecht?: string;
         date_5bd8?: string;
-        waren_sie_schon_einmal_bei_uns_in_behandlung?: string; // Fixed typo
+        waren_sie_schon_einmal_bei_uns_in_behandlung?: string;
         wurde_ein_hausbesuch_verordnet?: string;
         montag?: string[];
         dienstag?: string[];
