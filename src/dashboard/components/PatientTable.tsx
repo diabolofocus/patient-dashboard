@@ -169,22 +169,24 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         },
     ];
 
+    // Load notes for visible patients
+    useEffect(() => {
+        if (currentPatients.length > 0) {
+            currentPatients.forEach(patient => {
+                const email = patient.submissions.email_726a?.trim() || '';
+                const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                loadNoteForSubmission(patient._id, email, name);
+            });
+        }
+    }, [currentPatients, loadNoteForSubmission]);
+
     if (patients.length === 0) {
         return (
             <Box padding="40px" textAlign="center">
-                <Text size="medium">Keine Patienten gefunden</Text>
+                <Text size="medium">Keine doppelten Patienten gefunden</Text>
             </Box>
         );
     }
-
-    // Load notes for visible patients (this should still be there)
-    useEffect(() => {
-        currentPatients.forEach(patient => {
-            const email = patient.submissions.email_726a?.trim() || '';
-            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
-            loadNoteForSubmission(patient._id, email, name);
-        });
-    }, [currentPatients, loadNoteForSubmission]);
 
     return (
         <Box direction="vertical" gap="SP4">

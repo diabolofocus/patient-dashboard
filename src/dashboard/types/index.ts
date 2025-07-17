@@ -50,7 +50,9 @@ export interface FilterState {
     selectedTimeSlots: string[];
     selectedHomeVisit: string[];
     selectedAgeGroups: string[];
+    selectedTreatment: string[];
     searchTerm: string;
+    showDuplicatesOnly: boolean;
 }
 
 export interface AgeGroups {

@@ -9,7 +9,9 @@ import {
     Layout,
     Cell,
     Dropdown,
-    Button
+    Button,
+    TextButton,
+    InputArea
 } from '@wix/design-system';
 import { dashboard } from '@wix/dashboard';
 import { submissions } from '@wix/forms';
@@ -178,9 +180,23 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
             handleInputChange(dayField, newSelectedSlots);
         };
 
+        const selectAllTimeSlots = () => {
+            handleInputChange(dayField, [...timeSlots]);
+        };
+
         return (
             <Cell span={12} key={dayField}>
-                <FormField label={dayLabel}>
+                <Box direction="horizontal" align="space-between" verticalAlign="middle">
+                    <FormField label={dayLabel} labelSize="small" />
+                    <TextButton
+                        size="small"
+                        onClick={selectAllTimeSlots}
+                        disabled={selectedSlots.length === timeSlots.length}
+                    >
+                        Alle auswählen
+                    </TextButton>
+                </Box>
+                <Box marginTop="SP1">
                     <Box
                         direction="horizontal"
                         gap="SP1"
@@ -202,7 +218,7 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                                         margin: '1px',
                                         backgroundColor: isSelected ? '#326bf6' : 'transparent',
                                         color: isSelected ? 'white' : '#162D3D',
-                                        border: '1px solid #DFEAF2',
+                                        border: `1px solid ${isSelected ? '#326bf6' : '#B3B9C0'}`,
                                         borderRadius: '8px',
                                         height: '36px'
                                     }}
@@ -212,7 +228,7 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                             );
                         })}
                     </Box>
-                </FormField>
+                </Box>
             </Cell>
         );
     };
@@ -341,9 +357,12 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
 
                             <Cell span={12}>
                                 <FormField label="Diagnose oder Grund der Anmeldung">
-                                    <Input
+                                    <InputArea
                                         value={formData.diagnose_oder_grund_ihrer_anmeldung || ''}
                                         onChange={(e) => handleInputChange('diagnose_oder_grund_ihrer_anmeldung', e.target.value)}
+                                        rows={4}
+                                        resizable
+                                        ariaLabel="Diagnose oder Grund der Anmeldung"
                                     />
                                 </FormField>
                             </Cell>

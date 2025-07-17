@@ -35,7 +35,9 @@ export const useFilters = (allSubmissions: PatientSubmission[]) => {
         selectedTimeSlots: [],
         selectedHomeVisit: [],
         selectedAgeGroups: [],
+        selectedTreatment: [],
         searchTerm: '',
+        showDuplicatesOnly: false,
     });
 
     const filteredSubmissions = useMemo(() => {
@@ -96,12 +98,50 @@ export const useFilters = (allSubmissions: PatientSubmission[]) => {
             });
         }
 
+        // Treatment filter
+        if (filters.selectedTreatment.length > 0) {
+            filtered = filtered.filter(item => {
+                const treatmentAnswer = item.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung;
+                if (!treatmentAnswer) return false;
+
+                return filters.selectedTreatment.some(selected =>
+                    treatmentAnswer.toLowerCase() === selected.toLowerCase()
+                );
+            });
+        }
+
         // Age groups filter
         if (filters.selectedAgeGroups.length > 0) {
             filtered = filtered.filter(item => {
                 const birthDate = item.submissions.geburtsdatum;
                 const ageGroup = determineAgeGroup(birthDate);
                 return ageGroup && filters.selectedAgeGroups.includes(ageGroup);
+            });
+        }
+
+        // Duplicate names filter
+        if (filters.showDuplicatesOnly) {
+            // Create a map to count name occurrences
+            const nameCounts = new Map<string, number>();
+
+            // First pass: count occurrences of each full name
+            allSubmissions.forEach(item => {
+                const firstName = item.submissions?.vorname || '';
+                const lastName = item.submissions?.name_1 || '';
+                const fullName = `${firstName} ${lastName}`.toLowerCase().trim();
+
+                if (fullName.trim()) {  // Only count if we have at least one name part
+                    nameCounts.set(fullName, (nameCounts.get(fullName) || 0) + 1);
+                }
+            });
+
+            // Filter to only include submissions with duplicate names
+            filtered = filtered.filter(item => {
+                const firstName = item.submissions?.vorname || '';
+                const lastName = item.submissions?.name_1 || '';
+                const fullName = `${firstName} ${lastName}`.toLowerCase().trim();
+
+                return fullName && (nameCounts.get(fullName) || 0) > 1;
             });
         }
 
@@ -118,7 +158,9 @@ export const useFilters = (allSubmissions: PatientSubmission[]) => {
             selectedTimeSlots: [],
             selectedHomeVisit: [],
             selectedAgeGroups: [],
+            selectedTreatment: [],
             searchTerm: '',
+            showDuplicatesOnly: false,
         });
     };
 

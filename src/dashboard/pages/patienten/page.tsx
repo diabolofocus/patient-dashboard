@@ -18,7 +18,9 @@ import {
   Layout,
   Cell,
   MessageModalLayout,
-  Modal
+  Modal,
+  TextButton,
+  Divider
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
@@ -50,6 +52,7 @@ const PatientDashboard: React.FC = () => {
   const [patientToDelete, setPatientToDelete] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [patientToEdit, setPatientToEdit] = useState<any>(null);
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
 
   // Use the custom hook to fetch real patient data
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -227,7 +230,19 @@ const PatientDashboard: React.FC = () => {
     <WixDesignSystemProvider features={{ newColorsBranding: true }}>
       <Page>
         <Page.Header
-          title="Patientenliste"
+          title={
+            <Box direction="horizontal" gap="SP2" align="left">
+              <span>Patientenliste</span>
+              <TextButton
+                suffixIcon={<Icons.Hint size="20px" />}
+                size="small"
+                onClick={() => setIsWhatsNewOpen(true)}
+                skin="standard"
+              >
+                Neuigkeiten
+              </TextButton>
+            </Box>
+          }
           subtitle="Verwalten Sie Ihre Patienteneinreichungen und Wartelisten"
           actionsBar={
             <Box direction="horizontal" gap="SP3">
@@ -337,6 +352,40 @@ const PatientDashboard: React.FC = () => {
           onSave={handleSaveEdit}
         />
       )}
+
+      <Modal
+        isOpen={isWhatsNewOpen}
+        onRequestClose={() => setIsWhatsNewOpen(false)}
+        shouldCloseOnOverlayClick={true}
+        screen="desktop"
+      >
+        <Box padding="24px" background="white" direction="vertical" borderRadius="8px">
+          <Box textAlign="left">
+            <Text size="medium" weight="bold" marginBottom="16px">Was gibt's Neues?</Text>
+          </Box>
+
+          <Box marginTop="16px" textAlign="left" direction="vertical" align="left">
+            <Box direction="vertical" gap="8px" marginTop="16px" textAlign="left">
+              <Text>•  Vollständige Bearbeitung der Patienteneinreichung</Text>
+              <Text>•  Klicken Sie auf eine Zeile, um die Einreichung in der Vorschau anzuzeigen</Text>
+              <Text>•  Neuer Filter für Schon einmal in Behandlung</Text>
+              <Text>•  Filter für doppelte Namen, um Ihre Liste sauber zu halten</Text>
+              <Text>•  Filter bleiben auch nach der Aktualisierung der Tabelle aktiv</Text>
+              <Text>•  Notizen werden jetzt gespeichert</Text>
+              <Text>•  Bessere Übersichtlichkeit mit verbesserten Badges</Text>
+              <Text>•  Schlankeres Statistik-Panel für mehr Fokus auf die Patiententabelle</Text>
+            </Box>
+            <Box direction="horizontal" gap="12px" align="right" marginTop="24px">
+              <Button
+                onClick={() => setIsWhatsNewOpen(false)}
+                priority="primary"
+              >
+                Verstanden
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
     </WixDesignSystemProvider>
   );
 };

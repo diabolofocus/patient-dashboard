@@ -49,14 +49,34 @@ export const StatisticsCards: React.FC<StatisticsCardsProps> = ({
                         {/* Altersverteilung */}
                         <Box gap="SP2" direction="vertical" flexGrow={1} minWidth={100} align="center">
                             <Text size="small" color="secondary">Altersverteilung</Text>
-                            <Box backgroundColor="#eceff3" width="100%" height="70px" borderRadius="8px" padding="SP1" direction="vertical" align="center" verticalAlign="middle">
+                            <Box
+                                backgroundColor="#eceff3"
+                                width="100%"
+                                height="70px"
+                                borderRadius="8px"
+                                padding="SP1"
+                                direction="vertical"
+                                align="center"
+                                verticalAlign="middle"
+                                style={{
+                                    fontFamily: 'HelveticaNeueW01-45Ligh, HelveticaNeueW02-45Ligh, HelveticaNeueW10-45Ligh, Helvetica Neue, Helvetica, Arial, sans-serif',
+                                    fontWeight: '400',
+                                    fontSize: '10px !important',
+                                    color: '#162D3D'
+                                }}
+                            >
                                 <AgeDistributionPieChart ageGroups={ageGroups} />
                             </Box>
                         </Box>
                         {/* Geschlechterverteilung */}
                         <Box gap="SP2" direction="vertical" flexGrow={1} minWidth={100} align="center">
                             <Text size="small" color="secondary">Geschlechterverteilung</Text>
-                            <Box backgroundColor="#eceff3" width="100%" padding="SP1" height="70px" borderRadius="8px" direction="vertical" align="center" verticalAlign="middle">
+                            <Box backgroundColor="#eceff3" width="100%" padding="SP1" height="70px" borderRadius="8px" direction="vertical" align="center" verticalAlign="middle" style={{
+                                fontFamily: 'HelveticaNeueW01-45Ligh, HelveticaNeueW02-45Ligh, HelveticaNeueW10-45Ligh, Helvetica Neue, Helvetica, Arial, sans-serif',
+                                fontWeight: '400',
+                                fontSize: '10px !important',
+                                color: '#162D3D'
+                            }}>
                                 <GenderDistributionPieChart genderGroups={genderGroups} />
                             </Box>
                         </Box>

@@ -27,6 +27,7 @@ function isAnyFilterActive(filters: FilterState): boolean {
         filters.selectedTimeSlots.length > 0 ||
         filters.selectedHomeVisit.length > 0 ||
         filters.selectedAgeGroups.length > 0 ||
+        filters.showDuplicatesOnly ||
         (filters.searchTerm && filters.searchTerm.trim() !== '')
     );
 }
@@ -63,6 +64,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         { value: 'Nein', label: 'Nein' },
     ];
 
+    const treatmentOptions = [
+        { value: 'Ja', label: 'Ja' },
+        { value: 'Nein', label: 'Nein' },
+    ];
+
     const ageGroupOptions = [
         { value: 'kind', label: 'Kinder (0-12)' },
         { value: 'teen', label: 'Jugendliche (13-17)' },
@@ -91,6 +97,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             ? [...currentGroups, value]
             : currentGroups.filter(group => group !== value);
         onFilterChange('selectedAgeGroups', newGroups);
+    };
+
+    const handleTreatmentChange = (value: string, checked: boolean) => {
+        const currentValues = filters.selectedTreatment;
+        const newValues = checked
+            ? [...currentValues, value]
+            : currentValues.filter(val => val !== value);
+        onFilterChange('selectedTreatment', newValues);
     };
 
     return (
@@ -151,7 +165,22 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     </Box>
 
                     <Box direction="vertical" gap="SP2">
-                        <Text size="medium" >Altersgruppe</Text>
+                        <Text size="medium">Schon einmal in Behandlung</Text>
+                        <Box direction="vertical" gap="SP1">
+                            {treatmentOptions.map((option) => (
+                                <Checkbox
+                                    key={option.value}
+                                    checked={filters.selectedTreatment.includes(option.value)}
+                                    onChange={(e) => handleTreatmentChange(option.value, e.target.checked)}
+                                >
+                                    {option.label}
+                                </Checkbox>
+                            ))}
+                        </Box>
+                    </Box>
+
+                    <Box direction="vertical" gap="SP2">
+                        <Text size="medium">Altersgruppe</Text>
                         <Box direction="vertical" gap="SP1">
                             {ageGroupOptions.map((option) => (
                                 <Checkbox
@@ -162,6 +191,18 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                                     {option.label}
                                 </Checkbox>
                             ))}
+                        </Box>
+                    </Box>
+
+                    <Box direction="vertical" gap="SP2">
+                        <Text size="medium">Erweiterte Optionen</Text>
+                        <Box direction="vertical" gap="SP1">
+                            <Checkbox
+                                checked={filters.showDuplicatesOnly || false}
+                                onChange={(e) => onFilterChange('showDuplicatesOnly', e.target.checked)}
+                            >
+                                Doppelte Einträge
+                            </Checkbox>
                         </Box>
                     </Box>
                 </Box>
