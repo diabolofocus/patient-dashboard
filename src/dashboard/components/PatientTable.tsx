@@ -130,41 +130,40 @@ export const PatientTable: React.FC<PatientTableProps> = ({
 
     const headerOptions = [
         {
-            value: '\u00A0\u00A0\u00A0\u00A0Name', // Non-breaking spaces to align with avatar
-            width: '256px', // 220px + 16px gap compensation
+            value: '\u00A0\u00A0\u00A0\u00A0Name',
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
-
         },
         {
             value: `Datum (${sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})`,
-            width: '136px', // 120px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
             sortable: true,
             sortDescending: sortField === 'date' ? sortOrder === 'desc' : undefined,
         },
         {
             value: 'Alter',
-            width: '136px', // 120px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
         },
         {
             value: 'Ort',
-            width: '100px', // 70px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
         },
         {
             value: 'WV',
-            width: '100px', // 70px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
         },
         {
             value: 'K/E',
-            width: '106px', // 70px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
         },
         {
             value: '',
-            width: '96px', // 60px + 16px gap compensation
+            width: 'auto', // Let CSS handle the width
             align: 'left' as const,
         },
     ];
@@ -212,29 +211,6 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         background-color: rgba(59, 130, 246, 0.08) !important;
     }
     
-    /* Force TableListHeader to full width and proper alignment */
-    [data-hook="table-list-header"] {
-        width: 100% !important;
-        min-width: 100% !important;
-        display: flex !important;
-        padding: 12px 16px !important;
-        box-sizing: border-box !important;
-    }
-    
-    [data-hook="table-list-header"] > div {
-        display: flex !important;
-        width: 100% !important;
-    }
-    
-    /* Ensure proper column spacing */
-    [data-hook="table-list-header"] [data-hook="table-list-header-cell"] {
-        margin-right: 16px !important;
-    }
-    
-    [data-hook="table-list-header"] [data-hook="table-list-header-cell"]:last-child {
-        margin-right: 0 !important;
-    }
-    
     /* Horizontal scroll styling */
     .table-container {
         overflow-x: auto;
@@ -262,13 +238,12 @@ export const PatientTable: React.FC<PatientTableProps> = ({
     .table-container::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
     }
-  
-    
-    .note-input-container input {
-        width: 677px !important;
-        min-width: 677px !important;
-    }
 
+    .note-input-container {
+        width: calc(100% - 36px);
+        min-width: 200px;
+    }
+  
     /* Make actions column sticky */
     .actions-column {
         position: sticky !important;
@@ -341,21 +316,131 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         direction="vertical"
                         style={{
                             overflowX: 'auto',
-                            minWidth: '730px' // Updated minimum width for all columns
+                            minWidth: '900px' // Updated minimum width for responsive columns
                         }}
                     >
-                        {/* Table Header using TableListHeader */}
+                        {/* Custom Table Header to match data row structure exactly */}
                         <Box
+                            direction="horizontal"
+                            padding="8px 16px"
+
+                            backgroundColor="#d9e5fc"
                             style={{
-                                width: '100%',
-                                minWidth: '730px'
+                                alignItems: 'center',
+                                borderTop: '1px solid #afc9fa',
+                                borderBottom: '1px solid #afc9fa',
+                                minWidth: '800px',
+                                gap: '16px'
                             }}
                         >
-                            <TableListHeader
-                                options={headerOptions}
-                                onSortChange={handleSortChange}
-                                checkboxState="hidden"
-                            />
+                            {/* Name Column Header - matches exact structure of data row */}
+                            <Box
+                                minWidth="170px"
+                                style={{
+                                    minWidth: '222px',
+                                    flex: '1 1 35%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}
+                            >
+                                <Box width="24px" height="24px" flexShrink={0}>
+                                    {/* Space for avatar - exact same size as Avatar */}
+                                </Box>
+                                <Text size="small" weight="normal" color="#1976D2">Name</Text>
+                            </Box>
+
+                            {/* Date Column Header */}
+                            <div
+                                style={{
+                                    minWidth: '130px',
+                                    flex: '1 1 18%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => handleSort('date')}
+                            >
+                                <Text
+                                    size="small"
+                                    weight="normal"
+                                    color="#1976D2"
+                                    style={{ cursor: 'pointer', userSelect: 'none' }}
+                                >
+                                    Datum ({sortField === 'date' && sortOrder === 'desc' ? 'Neueste' : 'Älteste'})
+                                    {sortField === 'date' && (
+                                        <span style={{
+                                            marginLeft: '4px',
+                                            color: '#1976D2',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {sortOrder === 'desc' ? '↓' : '↑'}
+                                        </span>
+                                    )}
+                                </Text>
+                            </div>
+
+                            {/* Age Column Header */}
+                            <Box
+                                minWidth="100px"
+                                style={{
+                                    minWidth: '120px',
+                                    flex: '1 1 15%',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Text size="small" weight="normal" color="#1976D2">Alter</Text>
+                            </Box>
+
+                            {/* Ort Column Header */}
+                            <Box
+                                style={{
+                                    minWidth: '90px',
+                                    flex: '1 1 12%',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Text align="left" size="small" weight="normal" color="#1976D2">Ort</Text>
+                            </Box>
+
+                            {/* WV Column Header */}
+                            <Box
+                                style={{
+                                    minWidth: '90px',
+                                    flex: '1 1 12%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text align="left" size="small" weight="normal" color="#1976D2">WV</Text>
+                            </Box>
+
+                            {/* K/E Column Header */}
+                            <Box
+                                minWidth="120px"
+                                style={{
+                                    minWidth: '90px',
+                                    flex: '1 1 12%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text align="left" size="small" weight="normal" color="#1976D2">K/E</Text>
+                            </Box>
+
+                            {/* Actions Column Header */}
+                            <Box
+                                style={{
+                                    minWidth: '90px',
+                                    flex: '1 1 10%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text size="small" weight="normal"></Text>
+                            </Box>
                         </Box>
 
                         {hasNoPatients && (
@@ -398,27 +483,35 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                 return (
                                     <Box key={patient._id} direction="vertical">
                                         {/* Main Patient Row */}
-                                        {/* Main Patient Row */}
                                         <div
                                             onClick={() => onViewPatient(patient)}
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <Box
-                                                direction="horizontal"
-                                                gap="SP2"
                                                 padding="16px"
                                                 backgroundColor="#FFFFFF"
                                                 style={{
                                                     alignItems: 'center',
                                                     minHeight: '56px',
                                                     transition: 'background-color 0.15s ease',
-                                                    borderBottom: (note?.notes && note.notes.trim() !== '') ? 'none' : '1px solid #EAEAEA'
+                                                    borderBottom: (note?.notes && note.notes.trim() !== '') ? 'none' : '1px solid #EAEAEA',
+                                                    display: 'flex',
+                                                    gap: '16px'
                                                 }}
                                                 className="table-row-hover"
                                             >
                                                 {/* Name Column */}
-                                                <Box width="240px" minWidth="240px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
-                                                    <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                                <Box
+                                                    minWidth="170px"
+                                                    style={{
+                                                        flex: '1 1 35%',
+                                                        minWidth: '224px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px'
+                                                    }}
+                                                >
+                                                    <Box minWidth="24px" minHeight="24px" style={{ width: '24px', height: '24px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                         <Avatar size="size24" />
                                                     </Box>
                                                     <Box direction="vertical" gap="SP0">
@@ -435,14 +528,14 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* Date Column */}
-                                                <Box width="120px" minWidth="120px">
+                                                <Box minWidth="130px" style={{ minWidth: '120px', flex: '1 1 18%' }}>
                                                     <Text size="small">
                                                         {formatToGermanDate(patient.submissions.date_5bd8 || patient._createdDate)}
                                                     </Text>
                                                 </Box>
 
                                                 {/* Age Column */}
-                                                <Box width="120px" minWidth="120px">
+                                                <Box minWidth="100px" style={{ minWidth: '120px', flex: '1 1 15%' }}>
                                                     <Text size="small" style={{ whiteSpace: 'nowrap' }}>
                                                         {patient.submissions.geburtsdatum
                                                             ? calculateAge(patient.submissions.geburtsdatum)
@@ -452,7 +545,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* HB Column */}
-                                                <Box width="90px" minWidth="90px">
+                                                <Box align="left" style={{ minWidth: '90px', flex: '1 1 12%' }}>
                                                     <Badge
                                                         skin={patient.submissions.wurde_ein_hausbesuch_verordnet === 'Ja' ? 'success' : 'neutralLight'}
                                                         size="small"
@@ -462,7 +555,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* WV Column */}
-                                                <Box width="90px" minWidth="90px">
+                                                <Box align="left" style={{ minWidth: '90px', flex: '1 1 12%' }}>
                                                     <Badge
                                                         skin={patient.submissions.waren_sie_schon_einmal_bei_uns_in_behandlung === 'Nein' ? 'neutralLight' : 'success'}
                                                         size="small"
@@ -472,7 +565,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* K/E Column */}
-                                                <Box width="90px" minWidth="90px">
+                                                <Box minWidth="120px" align="left" style={{ minWidth: '90px', flex: '1 1 12%' }}>
                                                     {!patient.submissions.geburtsdatum ? (
                                                         <Text>-</Text>
                                                     ) : (
@@ -486,7 +579,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                 </Box>
 
                                                 {/* Actions Column */}
-                                                <Box width="90px" minWidth="90px" direction="horizontal" align="right" alignContent="end" className="actions-column">
+                                                <Box minWidth="50px" style={{ flex: '1 1 10%' }} direction="horizontal" align="right" alignContent="end" className="actions-column">
                                                     <div onClick={(e) => e.stopPropagation()}>
                                                         <PopoverMenu
                                                             textSize="small"
@@ -547,91 +640,95 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                         {/* Note Row - Show if note has content OR if we're editing */}
                                         {((note?.notes && note.notes.trim() !== '') || editingNotes[patient._id]) && (
                                             <Box
+                                                width="100%"
                                                 padding="12px 16px 12px 16px"
                                                 backgroundColor="#fff"
                                                 borderBottom="1px solid #EAEAEA"
                                                 style={{
                                                     borderTop: '1px dashed #CCCCCC'
                                                 }}
-                                            >
-                                                <Box className="note-input-container">
-                                                    <Input
-                                                        prefix={
-                                                            <Input.IconAffix>
-                                                                <Icons.Comment />
-                                                            </Input.IconAffix>
-                                                        }
-                                                        suffix={
-                                                            <Input.IconAffix>
-                                                                {editingNotes[patient._id] ? (
-                                                                    <Box direction="horizontal" gap="SP1">
-                                                                        <TextButton
-                                                                            size="tiny"
-                                                                            skin="destructive"
-                                                                            onClick={() => {
-                                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
-                                                                                // Reset the note text to original value
-                                                                                const email = patient.submissions.email_726a?.trim() || '';
-                                                                                const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
-                                                                                loadNoteForSubmission(patient._id, email, name);
-                                                                            }}
-                                                                        >
-                                                                            Abbrechen
-                                                                        </TextButton>
-                                                                        <TextButton
-                                                                            size="tiny"
-                                                                            onClick={async () => {
-                                                                                const success = await saveNote(patient._id, note.notes);
-                                                                                if (success) {
-                                                                                    setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
-                                                                                }
-                                                                            }}
-                                                                            disabled={loadingNotes[patient._id]}
-                                                                        >
-                                                                            {loadingNotes[patient._id] ? 'Speichern...' : 'Speichern'}
-                                                                        </TextButton>
 
-                                                                    </Box>
-                                                                ) : (
+                                            >
+
+                                                <Input
+                                                    className="note-input-container"
+                                                    prefix={
+                                                        <Input.IconAffix>
+                                                            <Icons.Comment />
+                                                        </Input.IconAffix>
+                                                    }
+                                                    suffix={
+                                                        <Input.IconAffix>
+                                                            {editingNotes[patient._id] ? (
+                                                                <Box direction="horizontal" gap="SP1" align="right">
                                                                     <TextButton
                                                                         size="tiny"
+                                                                        skin="destructive"
                                                                         onClick={() => {
-                                                                            setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
+                                                                            setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                            // Reset the note text to original value
+                                                                            const email = patient.submissions.email_726a?.trim() || '';
+                                                                            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                                            loadNoteForSubmission(patient._id, email, name);
                                                                         }}
                                                                     >
-                                                                        Bearbeiten
+                                                                        Abbrechen
                                                                     </TextButton>
-                                                                )}
-                                                            </Input.IconAffix>
+                                                                    <TextButton
+                                                                        size="tiny"
+                                                                        onClick={async () => {
+                                                                            const success = await saveNote(patient._id, note.notes);
+                                                                            if (success) {
+                                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                            }
+                                                                        }}
+                                                                        disabled={loadingNotes[patient._id]}
+                                                                    >
+                                                                        {loadingNotes[patient._id] ? 'Speichern...' : 'Speichern'}
+                                                                    </TextButton>
+
+                                                                </Box>
+                                                            ) : (
+                                                                <TextButton
+                                                                    size="tiny"
+                                                                    onClick={() => {
+                                                                        setEditingNotes(prev => ({ ...prev, [patient._id]: true }));
+                                                                    }}
+                                                                >
+                                                                    Bearbeiten
+                                                                </TextButton>
+                                                            )}
+                                                        </Input.IconAffix>
+                                                    }
+
+                                                    value={note.notes}
+                                                    readOnly={!editingNotes[patient._id]}
+                                                    size="tiny"
+                                                    onChange={(e) => {
+                                                        if (editingNotes[patient._id]) {
+                                                            updateNoteText(patient._id, e.target.value);
                                                         }
-                                                        value={note.notes}
-                                                        readOnly={!editingNotes[patient._id]}
-                                                        size="small"
-                                                        onChange={(e) => {
-                                                            if (editingNotes[patient._id]) {
-                                                                updateNoteText(patient._id, e.target.value);
-                                                            }
-                                                        }}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter' && editingNotes[patient._id]) {
-                                                                // Save on Enter
-                                                                saveNote(patient._id, note.notes).then((success) => {
-                                                                    if (success) {
-                                                                        setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
-                                                                    }
-                                                                });
-                                                            }
-                                                            if (e.key === 'Escape' && editingNotes[patient._id]) {
-                                                                // Cancel on Escape
-                                                                setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
-                                                                const email = patient.submissions.email_726a?.trim() || '';
-                                                                const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
-                                                                loadNoteForSubmission(patient._id, email, name);
-                                                            }
-                                                        }}
-                                                    />
-                                                </Box>
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && editingNotes[patient._id]) {
+                                                            // Save on Enter
+                                                            saveNote(patient._id, note.notes).then((success) => {
+                                                                if (success) {
+                                                                    setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                                }
+                                                            });
+                                                        }
+                                                        if (e.key === 'Escape' && editingNotes[patient._id]) {
+                                                            // Cancel on Escape
+                                                            setEditingNotes(prev => ({ ...prev, [patient._id]: false }));
+                                                            const email = patient.submissions.email_726a?.trim() || '';
+                                                            const name = `${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim();
+                                                            loadNoteForSubmission(patient._id, email, name);
+                                                        }
+                                                    }}
+                                                />
                                             </Box>
+
                                         )}
                                     </Box>
                                 );

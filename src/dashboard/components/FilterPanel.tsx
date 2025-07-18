@@ -123,7 +123,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     )}
                 </Box>
 
-                <Box direction="vertical" gap="SP4" minWidth="230px">
+                <Box direction="vertical" gap="SP4">
                     <Box direction="vertical" gap="SP2">
                         <Text size="medium" >Tag</Text>
                         <Dropdown

@@ -228,7 +228,7 @@ const PatientDashboard: React.FC = () => {
 
   return (
     <WixDesignSystemProvider features={{ newColorsBranding: true }}>
-      <Page>
+      <Page minWidth={950}>
         <Page.Header
           title={
             <Box direction="horizontal" gap="SP2" align="left">
