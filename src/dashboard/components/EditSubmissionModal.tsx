@@ -11,7 +11,8 @@ import {
     Dropdown,
     Button,
     TextButton,
-    InputArea
+    InputArea,
+    Checkbox
 } from '@wix/design-system';
 import { dashboard } from '@wix/dashboard';
 import { submissions } from '@wix/forms';
@@ -34,7 +35,6 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [originalData, setOriginalData] = useState<any>({});
 
-    // Initialize form data when patient changes
     useEffect(() => {
         if (patient) {
             const data = { ...patient.submissions };
@@ -49,6 +49,13 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                 // Convert stored format to display format
                 (data as any)[field] = ((data as any)[field] as string[]).map(convertStoredToDisplay);
             });
+
+            // If flexibility checkbox is true, pre-select all time slots
+            if (data.form_field_ab01) {
+                availabilityFields.forEach(field => {
+                    (data as any)[field] = [...timeSlots];
+                });
+            }
 
             console.log('Loading patient data:', data);
             setFormData(data);
@@ -392,6 +399,35 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                                         selectedId={formData.waren_sie_schon_einmal_bei_uns_in_behandlung || ''}
                                         onSelect={(option) => handleInputChange('waren_sie_schon_einmal_bei_uns_in_behandlung', option.value)}
                                     />
+                                </FormField>
+                            </Cell>
+
+                            {/* Flexibility Option */}
+                            <Cell span={12}>
+                                <FormField label="Flexibilität">
+                                    <Checkbox
+                                        checked={formData.form_field_ab01 || false}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            handleInputChange('form_field_ab01', isChecked);
+
+                                            // If checked, select all time slots for all days
+                                            if (isChecked) {
+                                                const availabilityFields = ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag'];
+                                                availabilityFields.forEach(field => {
+                                                    handleInputChange(field, [...timeSlots]);
+                                                });
+                                            } else {
+                                                // If unchecked, clear all time slots
+                                                const availabilityFields = ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag'];
+                                                availabilityFields.forEach(field => {
+                                                    handleInputChange(field, []);
+                                                });
+                                            }
+                                        }}
+                                    >
+                                        Ich bin flexibel und kann jederzeit einsteigen
+                                    </Checkbox>
                                 </FormField>
                             </Cell>
 

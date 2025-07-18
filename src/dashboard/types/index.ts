@@ -25,6 +25,7 @@ export interface PatientSubmission {
         date_5bd8?: string;
         waren_sie_schon_einmal_bei_uns_in_behandlung?: string;
         wurde_ein_hausbesuch_verordnet?: string;
+        form_field_ab01?: boolean;
         montag?: string[];
         dienstag?: string[];
         mittwoch?: string[];

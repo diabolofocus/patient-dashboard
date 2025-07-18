@@ -57,16 +57,26 @@ export const useFilters = (allSubmissions: PatientSubmission[]) => {
 
         // Day filter
         if (filters.selectedDay) {
-            const germanDay = DAY_FIELD_MAPPING[filters.selectedDay.toLowerCase()];
-            filtered = filtered.filter(item =>
-                item.submissions[germanDay as keyof typeof item.submissions] &&
-                (item.submissions[germanDay as keyof typeof item.submissions] as string[])?.length > 0
-            );
+            filtered = filtered.filter(item => {
+                // If patient is flexible, they're available all days
+                if ((item.submissions as any).form_field_ab01) {
+                    return true;
+                }
+
+                const germanDay = DAY_FIELD_MAPPING[filters.selectedDay!.toLowerCase()];
+                return item.submissions[germanDay as keyof typeof item.submissions] &&
+                    (item.submissions[germanDay as keyof typeof item.submissions] as string[])?.length > 0;
+            });
         }
 
         // Time slots filter
         if (filters.selectedTimeSlots.length > 0) {
             filtered = filtered.filter(item => {
+                // If patient is flexible, they're available for all time slots
+                if ((item.submissions as any).form_field_ab01) {
+                    return true;
+                }
+
                 if (!filters.selectedDay) {
                     return Object.values(DAY_FIELD_MAPPING).some(germanDay => {
                         const dayAvailability = item.submissions[germanDay as keyof typeof item.submissions] as string[] || [];
@@ -76,7 +86,7 @@ export const useFilters = (allSubmissions: PatientSubmission[]) => {
                         });
                     });
                 } else {
-                    const germanDay = DAY_FIELD_MAPPING[filters.selectedDay.toLowerCase()];
+                    const germanDay = DAY_FIELD_MAPPING[filters.selectedDay!.toLowerCase()];
                     const dayAvailability = item.submissions[germanDay as keyof typeof item.submissions] as string[] || [];
                     return filters.selectedTimeSlots.every(slot => {
                         const timeRange = TIME_SLOT_MAPPING[slot];

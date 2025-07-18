@@ -236,14 +236,25 @@ const PatientDashboard: React.FC = () => {
               <TextButton
                 suffixIcon={<Icons.Hint size="20px" />}
                 size="small"
+                underline="always"
                 onClick={() => setIsWhatsNewOpen(true)}
-                skin="standard"
+                skin="premium"
               >
                 Neuigkeiten
               </TextButton>
             </Box>
           }
-          subtitle="Verwalten Sie Ihre Patienteneinreichungen und Wartelisten"
+          subtitle={
+            <TextButton
+              onClick={() => window.open('https://www.xn--logopdie-falkensee-ptb.de/', '_blank', 'noopener,noreferrer')}
+              size="small"
+              skin="standard"
+              suffixIcon={<Icons.ExternalLink size="14px" />}
+              underline="always"
+            >
+              www.logopädie-falkensee.de
+            </TextButton>
+          }
           actionsBar={
             <Box direction="horizontal" gap="SP3">
               <Button
@@ -359,21 +370,31 @@ const PatientDashboard: React.FC = () => {
         shouldCloseOnOverlayClick={true}
         screen="desktop"
       >
-        <Box padding="24px" background="white" direction="vertical" borderRadius="8px">
+        <Box padding="24px" background="white" direction="vertical" borderRadius="8px" gap="16px">
           <Box textAlign="left">
             <Text size="medium" weight="bold" marginBottom="16px">Was gibt's Neues?</Text>
           </Box>
 
-          <Box marginTop="16px" textAlign="left" direction="vertical" align="left">
-            <Box direction="vertical" gap="8px" marginTop="16px" textAlign="left">
+          <Box textAlign="left" direction="vertical" align="left">
+            <Box direction="vertical" gap="8px" marginBottom="16px" textAlign="left">
               <Text>•  Vollständige Bearbeitung der Patienteneinreichung</Text>
               <Text>•  Klicken Sie auf eine Zeile, um die Einreichung in der Vorschau anzuzeigen</Text>
+              <Text>•  Dem Formular wurde das Kontrollkästchen „Ich bin flexibel“ hinzugefügt, mit dem Sie und der Patient automatisch alle Zeitfenster auswählen können.</Text>
               <Text>•  Neuer Filter für Schon einmal in Behandlung</Text>
+              <Text>•  Den Namen der anmeldenden Person finden Sie unter dem Patientennamen.</Text>
               <Text>•  Filter für doppelte Namen, um Ihre Liste sauber zu halten</Text>
               <Text>•  Filter bleiben auch nach der Aktualisierung der Tabelle aktiv</Text>
               <Text>•  Notizen werden jetzt gespeichert</Text>
               <Text>•  Bessere Übersichtlichkeit mit verbesserten Badges</Text>
               <Text>•  Schlankeres Statistik-Panel für mehr Fokus auf die Patiententabelle</Text>
+            </Box>
+
+            <Box textAlign="left" marginTop="16px">
+              <Text size="medium" weight="bold" marginBottom="16px">Erinnerung</Text>
+            </Box>
+            <Box direction="vertical" gap="8px" marginTop="16px" textAlign="left">
+              <Text>•  Klicken Sie auf den Spaltentitel „Datum (Neueste)“, um zwischen den ältesten oder neuesten Einreichungen zu wechseln.</Text>
+
             </Box>
             <Box direction="horizontal" gap="12px" align="right" marginTop="24px">
               <Button

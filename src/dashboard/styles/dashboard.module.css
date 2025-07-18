@@ -50,6 +50,10 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.avatar-top-align {
+    margin-top: 4px;
+}
+
 .loadingContainer {
     display: flex;
     justify-content: center;

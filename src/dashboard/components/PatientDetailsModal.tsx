@@ -104,15 +104,18 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                                     textAlign: 'center',
                                     fontSize: '12px'
                                 }}>
-                                    {day.data.some(slot => {
-                                        // Check for exact match or variations without leading zeros
-                                        const normalizedSlot = slot.trim();
-                                        const normalizedTimeSlot = timeSlot.replace(/^0+/, '').replace('-0', '-');
-                                        return normalizedSlot.includes(timeSlot) ||
-                                            normalizedSlot.includes(normalizedTimeSlot) ||
-                                            normalizedSlot === timeSlot ||
-                                            normalizedSlot === normalizedTimeSlot;
-                                    }) ? 'X' : ''}                                </td>
+                                    {patient.submissions.form_field_ab01 ? 'X' :
+                                        day.data.some(slot => {
+                                            // Check for exact match or variations without leading zeros
+                                            const normalizedSlot = slot.trim();
+                                            const normalizedTimeSlot = timeSlot.replace(/^0+/, '').replace('-0', '-');
+                                            return normalizedSlot.includes(timeSlot) ||
+                                                normalizedSlot.includes(normalizedTimeSlot) ||
+                                                normalizedSlot === timeSlot ||
+                                                normalizedSlot === normalizedTimeSlot;
+                                        }) ? 'X' : ''
+                                    }
+                                </td>
                             ))}
                         </tr>
                     ))}
@@ -176,15 +179,15 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                         <Box
                             className="modal-content"
                             style={{
-                                width: '210mm',
+                                width: '100%',
                                 maxWidth: '800px',
-                                minHeight: '297mm',
+                                minHeight: 'auto',
                                 backgroundColor: 'white',
                                 padding: '30px',
                                 fontFamily: 'Arial, sans-serif',
                                 fontSize: '12px',
                                 lineHeight: '1.4',
-                                marginTop: '200px',
+                                marginTop: '20px',
                                 marginBottom: '40px',
                                 marginLeft: 'auto',
                                 marginRight: 'auto',

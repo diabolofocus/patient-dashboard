@@ -180,13 +180,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         }
     }, [currentPatients, loadNoteForSubmission]);
 
-    if (patients.length === 0) {
-        return (
-            <Box padding="40px" textAlign="center">
-                <Text size="medium">Keine doppelten Patienten gefunden</Text>
-            </Box>
-        );
-    }
+    const hasNoPatients = patients.length === 0;
 
     return (
         <Box direction="vertical" gap="SP4">
@@ -198,9 +192,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                     display: 'flex',
                     flexDirection: 'column',
                     overflowX: 'auto',
-                    minWidth: '100%'
+                    minWidth: '100%',
+                    minHeight: hasNoPatients ? '100px' : 'auto'
                 }}
             >
+
                 <style>{`
     .patient-table-container table tbody tr {
         transition: background-color 0.15s ease;
@@ -300,6 +296,9 @@ export const PatientTable: React.FC<PatientTableProps> = ({
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .custom-grey-text {
+        color: #888888 !important;
+    }
   
 `}</style>
                 <Card>
@@ -335,6 +334,8 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                         </TableToolbar.ItemGroup>
                     </TableToolbar>
 
+
+
                     {/* Custom table structure with expandable note rows */}
                     <Box
                         direction="vertical"
@@ -356,6 +357,24 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                 checkboxState="hidden"
                             />
                         </Box>
+
+                        {hasNoPatients && (
+                            <Box
+                                width="100%"
+                                padding="20px"
+                                textAlign="center"
+                                borderTop="1px solid #e0e0e0"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minHeight: '150px',
+                                    backgroundColor: '#f9f9f9'
+                                }}
+                            >
+                                <Text size="medium" weight="normal">Keine Patienten gefunden</Text>
+                            </Box>
+                        )}
 
                         {/* Table Rows */}
                         <Box direction="vertical">
@@ -399,10 +418,20 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                             >
                                                 {/* Name Column */}
                                                 <Box width="240px" minWidth="240px" direction="horizontal" gap="SP2" align="left" style={{ alignItems: 'center' }}>
-                                                    <Avatar size="size24" />
-                                                    <Text size="small">
-                                                        {`${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim()}
-                                                    </Text>
+                                                    <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                                        <Avatar size="size24" />
+                                                    </Box>
+                                                    <Box direction="vertical" gap="SP0">
+                                                        <Text size="small">
+                                                            {`${patient.submissions.vorname || ''} ${patient.submissions.name_1 || ''}`.trim()}
+                                                        </Text>
+                                                        {patient.submissions.name_der_anmeldenden_person &&
+                                                            patient.submissions.name_der_anmeldenden_person.trim() !== `${patient.submissions.name_1 || ''} ${patient.submissions.vorname || ''}`.trim() && (
+                                                                <Text size="tiny" className="custom-grey-text">
+                                                                    {patient.submissions.name_der_anmeldenden_person}
+                                                                </Text>
+                                                            )}
+                                                    </Box>
                                                 </Box>
 
                                                 {/* Date Column */}
