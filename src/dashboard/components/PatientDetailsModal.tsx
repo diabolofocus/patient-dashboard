@@ -157,7 +157,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 <Box
                     height="calc(100vh - 100px)"
                     backgroundColor="#f0f0f0"
-                    maxWidth="900px"
+                    maxWidth="1100px"
                     borderRadius="8px"
                     direction="vertical"
                     padding="SP4"
