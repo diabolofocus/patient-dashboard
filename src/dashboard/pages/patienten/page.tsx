@@ -234,7 +234,7 @@ const PatientDashboard: React.FC = () => {
             <Box direction="horizontal" gap="SP2" align="left">
               <span>Patientenliste</span>
               <TextButton
-                suffixIcon={<Icons.Hint size="20px" />}
+                prefixIcon={<Icons.Hint size="20px" />}
                 size="small"
                 underline="always"
                 onClick={() => setIsWhatsNewOpen(true)}

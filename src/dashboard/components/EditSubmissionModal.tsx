@@ -426,7 +426,7 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                                             }
                                         }}
                                     >
-                                        Ich bin flexibel und kann jederzeit einsteigen
+                                        Ich bin flexibel und kann jederzeit
                                     </Checkbox>
                                 </FormField>
                             </Cell>

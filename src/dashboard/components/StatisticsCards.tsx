@@ -27,10 +27,13 @@ export const StatisticsCards: React.FC<StatisticsCardsProps> = ({
     currentDate,
 }) => {
     return (
-        <Box>
+        <Box width="100%" backgroundColor="white" borderRadius="8px" style={{
+            overflowX: 'auto',
+            minWidth: '1200px'
+        }}>
             <Card>
                 <Card.Content>
-                    <Box direction="horizontal" gap="SP6" align="center" width="1200px">
+                    <Box direction="horizontal" gap="SP6" align="center" width="100%" minWidth="1200px">
                         {/* Patienten Insgesamt */}
                         <Box gap="SP2" direction="vertical" flexGrow={1} align="center">
                             <Text size="small" color="secondary">Patienten Insgesamt</Text>
