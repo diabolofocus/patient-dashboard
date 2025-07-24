@@ -20,7 +20,10 @@ import {
   MessageModalLayout,
   Modal,
   TextButton,
-  Divider
+  Divider,
+  IconButton,
+  PopoverMenu,
+  Tooltip
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
@@ -226,6 +229,47 @@ const PatientDashboard: React.FC = () => {
     setPatientToDelete(null);
   };
 
+  const handleOpenTrash = () => {
+    try {
+      const url = 'https://manage.wix.com/dashboard/69ff8e01-cfc2-4e5e-b7e1-37fc3e49370b/wix-forms/form/265b5dc7-98f6-418f-b3c6-6d1530c209f3/submissions?folder=%5B%7B%22id%22%3A%22deleted%22%2C%22name%22%3A%22Trash%22%7D%5D&sort=createdDate+desc';
+      window.open(url, '_blank'); // opens in a new tab
+    } catch (error) {
+      console.error('Failed to open trash link:', error);
+      dashboard.showToast({
+        message: 'Trash page temporarily unavailable',
+        type: 'warning'
+      });
+    }
+  };
+
+
+  const handleOpenNotes = () => {
+    try {
+      const url = 'https://manage.wix.com/dashboard/69ff8e01-cfc2-4e5e-b7e1-37fc3e49370b/database/data/Notes?referralInfo=sidebar';
+      window.open(url, '_blank'); // opens in a new tab
+    } catch (error) {
+      console.error('Failed to open notes link:', error);
+      dashboard.showToast({
+        message: 'Notes page temporarily unavailable',
+        type: 'warning'
+      });
+    }
+  };
+
+  // More Actions menu items
+  const moreActionsMenuItems = [
+    {
+      text: 'Papierkorb',
+      prefixIcon: <Icons.Delete />,
+      onClick: handleOpenTrash
+    },
+    {
+      text: 'Notizen',
+      prefixIcon: <Icons.Note />,
+      onClick: handleOpenNotes
+    }
+  ];
+
   return (
     <WixDesignSystemProvider features={{ newColorsBranding: true }}>
       <Page minWidth={950}>
@@ -233,7 +277,7 @@ const PatientDashboard: React.FC = () => {
           title={
             <Box direction="horizontal" gap="SP2" align="left">
               <span>Patientenliste</span>
-              <TextButton
+              {/* <TextButton
                 prefixIcon={<Icons.Hint size="20px" />}
                 size="small"
                 underline="always"
@@ -241,9 +285,10 @@ const PatientDashboard: React.FC = () => {
                 skin="premium"
               >
                 Neuigkeiten
-              </TextButton>
+              </TextButton> */}
             </Box>
           }
+
           subtitle={
             <TextButton
               onClick={() => window.open('https://www.xn--logopdie-falkensee-ptb.de/', '_blank', 'noopener,noreferrer')}
@@ -257,13 +302,36 @@ const PatientDashboard: React.FC = () => {
           }
           actionsBar={
             <Box direction="horizontal" gap="SP3">
-              <Button
-                onClick={handleRefresh}
-                prefixIcon={<Icons.Refresh />}
-                priority="secondary"
-              >
-                Aktualisieren
-              </Button>
+              <Tooltip content="Aktualisieren">
+                <IconButton onClick={handleRefresh} skin="standard" priority="secondary">
+                  <Icons.Refresh />
+                </IconButton>
+              </Tooltip>
+              {/* More Actions PopoverMenu */}
+              <Box direction="horizontal" align="center">
+                <PopoverMenu
+                  triggerElement={
+                    <Button
+                      suffixIcon={<Icons.ChevronDown />}
+                      size="medium"
+                      skin="standard"
+                      priority="secondary"
+                    >
+                      Weitere Aktionen
+                    </Button>
+                  }
+                  placement="bottom"
+                >
+                  {moreActionsMenuItems.map((item, index) => (
+                    <PopoverMenu.MenuItem
+                      key={index}
+                      onClick={item.onClick}
+                      prefixIcon={item.prefixIcon}
+                      text={item.text}
+                    />
+                  ))}
+                </PopoverMenu>
+              </Box>
               <Button
                 onClick={handleAddNewRegistration}
                 prefixIcon={<Icons.Add />}

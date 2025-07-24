@@ -3,7 +3,7 @@
 // ==============================================
 
 import React from 'react';
-import { Search, Button, Box } from '@wix/design-system';
+import { Search, Button, Box, IconButton } from '@wix/design-system';
 import * as Icons from '@wix/wix-ui-icons-common';
 
 interface SearchBarProps {
@@ -39,6 +39,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 >
                     Aktualisieren
                 </Button>
+
             </Box>
         </Box>
     );

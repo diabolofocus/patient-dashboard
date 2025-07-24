@@ -654,7 +654,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({
                                                     className="note-input-container"
                                                     prefix={
                                                         <Input.IconAffix>
-                                                            <Icons.Comment />
+                                                            <Icons.Note />
                                                         </Input.IconAffix>
                                                     }
                                                     suffix={
