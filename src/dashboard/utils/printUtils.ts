@@ -136,18 +136,18 @@ export const printPatientDetails = (patient: PatientSubmission) => {
                     width: 210mm;
                     min-height: 297mm;
                     background-color: white;
-                    padding: 30px;
+                    padding: 20px 40px;
                     margin: 0 auto;
                     box-sizing: border-box;
                 }
                 
                 .header-image {
                     text-align: center;
-                    margin-bottom: 30px;
+                    margin-bottom: 20px;
                 }
                 
                 .header-image img {
-                    width: 460px;
+                    width: 400px;
                     height: auto;
                     max-width: 100%;
                 }
@@ -168,7 +168,7 @@ export const printPatientDetails = (patient: PatientSubmission) => {
                 }
                 
                 .info-table td {
-                    padding: 10px;
+                    padding: 6px;
                     border: 1px solid #ddd;
                 }
                 
@@ -207,11 +207,18 @@ export const printPatientDetails = (patient: PatientSubmission) => {
                 @media print {
                     body {
                         background-color: white;
+                        margin: 0;
+                        padding: 0;
                     }
-                    
+
                     .print-container {
                         margin: 0;
+                        padding: 15px 30px;
                         box-shadow: none;
+                    }
+
+                    @page {
+                        margin: 0;
                     }
                 }
             </style>

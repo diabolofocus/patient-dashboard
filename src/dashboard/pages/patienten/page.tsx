@@ -144,7 +144,7 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handleAddNewRegistration = () => {
-    window.open('https://www.xn--logopdie-falkensee-ptb.de/anmeldung', '_blank');
+    window.open('https://www.logopaedie-falkensee.de/anmeldung', '_blank');
   };
 
   const handleViewPatient = (patient: any) => {
@@ -291,13 +291,13 @@ const PatientDashboard: React.FC = () => {
 
           subtitle={
             <TextButton
-              onClick={() => window.open('https://www.xn--logopdie-falkensee-ptb.de/', '_blank', 'noopener,noreferrer')}
+              onClick={() => window.open('https://www.logopaedie-falkensee.de/', '_blank', 'noopener,noreferrer')}
               size="small"
               skin="standard"
               suffixIcon={<Icons.ExternalLink size="14px" />}
               underline="always"
             >
-              www.logopädie-falkensee.de
+              www.logopaedie-falkensee.de
             </TextButton>
           }
           actionsBar={
