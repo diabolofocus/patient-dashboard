@@ -15,6 +15,9 @@ export const printPatientDetails = (patient: PatientSubmission) => {
     };
 
     const renderAvailabilityGrid = () => {
+        // Check if the patient selected the flexibility option
+        const isFlexible = patient.submissions.form_field_ab01;
+
         const days = [
             { name: 'Montag', data: patient.submissions.montag || [] },
             { name: 'Dienstag', data: patient.submissions.dienstag || [] },
@@ -86,7 +89,20 @@ export const printPatientDetails = (patient: PatientSubmission) => {
             `;
 
             timeSlots.forEach(timeSlot => {
-                const isAvailable = day.data.some(slot => slot.includes(timeSlot.replace('-', '-')));
+                // If flexible, show X for all slots, otherwise check individual day data
+                let isAvailable = false;
+                if (isFlexible) {
+                    isAvailable = true;
+                } else {
+                    // Convert time slot format to match stored format (8-9 instead of 08-09)
+                    const convertedTimeSlot = timeSlot.replace(/^0/, '').replace(/-0/, '-');
+                    isAvailable = day.data.some(slot =>
+                        slot.includes(timeSlot) ||
+                        slot.includes(convertedTimeSlot) ||
+                        slot === timeSlot ||
+                        slot === convertedTimeSlot
+                    );
+                }
                 tableHTML += `
                     <td style="
                         padding: 8px;
