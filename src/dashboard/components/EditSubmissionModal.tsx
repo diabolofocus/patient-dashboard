@@ -252,7 +252,7 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
             <CustomModalLayout
                 title="Einreichung bearbeiten"
                 subtitle={`Bearbeiten Sie die Daten für ${formData.vorname || ''} ${formData.name_1 || ''}`.trim()}
-                primaryButtonText="Speichern"
+                primaryButtonText={isLoading ? "Speichern..." : "Speichern"}
                 secondaryButtonText="Verwerfen"
                 primaryButtonOnClick={handleSave}
                 secondaryButtonOnClick={handleDiscard}
@@ -455,6 +455,11 @@ export const EditSubmissionModal: React.FC<EditSubmissionModalProps> = ({
                                         type="date"
                                     />
                                 </FormField>
+                            </Cell>
+
+                            {/* Add extra spacing below the date field */}
+                            <Cell span={12}>
+                                <Box marginBottom="SP4" />
                             </Cell>
                         </Layout>
                     </Box>
