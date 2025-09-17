@@ -28,6 +28,7 @@ import {
 import '@wix/design-system/styles.global.css';
 import * as Icons from '@wix/wix-ui-icons-common';
 import { dashboard } from '@wix/dashboard';
+import { appInstances } from '@wix/app-management';
 import { usePatientData } from '../../hooks/usePatientData';
 import { useFilters } from '../../hooks/useFilters';
 import { PatientTable } from '../../components/PatientTable';
@@ -56,6 +57,7 @@ const PatientDashboard: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [patientToEdit, setPatientToEdit] = useState<any>(null);
   const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
+  const [appVersion, setAppVersion] = useState('v1.0.0');
 
   // Use the custom hook to fetch real patient data
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -77,6 +79,23 @@ const PatientDashboard: React.FC = () => {
     updateFilter,
     clearFilters
   } = useFilters(allSubmissions);
+
+  // Fetch app version
+  useEffect(() => {
+    const fetchAppVersion = async () => {
+      try {
+        const response = await appInstances.getAppInstance();
+        if (response.instance?.appVersion) {
+          setAppVersion(`v${response.instance.appVersion}`);
+        }
+      } catch (error) {
+        console.error('Failed to fetch app version:', error);
+        // Keep default version if fetch fails
+      }
+    };
+
+    fetchAppVersion();
+  }, []);
 
   // Update time every minute - MUST be before conditional returns
   useEffect(() => {
@@ -277,6 +296,9 @@ const PatientDashboard: React.FC = () => {
           title={
             <Box direction="horizontal" gap="SP2" align="left">
               <span>Patientenliste</span>
+              <Badge size="small" skin="standard" type="solid">
+                {appVersion}
+              </Badge>
               {/* <TextButton
                 prefixIcon={<Icons.Hint size="20px" />}
                 size="small"
